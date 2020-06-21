@@ -1,5 +1,4 @@
 import "./lib/canvas.js";
-
 import { clearCanvas, drawChar } from "./lib/canvas";
 
 const player = {
@@ -11,16 +10,16 @@ const player = {
   },
 };
 
-let userInput = null;
-let playerTurn = false;
+drawChar(player);
 
-document.addEventListener("keydown", (ev) => (userInput = ev.key));
+let userInput = null;
+
+document.addEventListener("keydown", (ev) => {
+  userInput = ev.key;
+  processUserInput();
+});
 
 const processUserInput = () => {
-  if (!userInput) {
-    return;
-  }
-
   if (userInput === "ArrowUp") {
     player.position.y -= 1;
   }
@@ -33,30 +32,7 @@ const processUserInput = () => {
   if (userInput === "ArrowLeft") {
     player.position.x -= 1;
   }
-};
 
-function gameTick() {
   clearCanvas();
   drawChar(player);
-}
-
-function update() {
-  if (userInput && playerTurn) {
-    processUserInput();
-    gameTick();
-    userInput = null;
-    playerTurn = false;
-  }
-
-  if (!playerTurn) {
-    gameTick();
-    playerTurn = true;
-  }
-}
-
-function gameLoop() {
-  update();
-  requestAnimationFrame(gameLoop);
-}
-
-gameLoop();
+};
