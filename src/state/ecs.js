@@ -9,7 +9,6 @@ ecs.registerComponent(Move);
 ecs.registerComponent(Position);
 
 export const player = ecs.createEntity();
-
 player.add(Appearance, { char: "@", color: "#fff" });
 player.add(Position);
 
