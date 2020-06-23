@@ -19,6 +19,6 @@ export const movement = () => {
     entity.position.x = mx;
     entity.position.y = my;
 
-    entity.remove("Move");
+    entity.remove(Move);
   });
 };

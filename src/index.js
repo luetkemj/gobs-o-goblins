@@ -7,7 +7,6 @@ import { Move } from "./state/components";
 
 // init game map and player position
 const dungeon = createDungeon();
-console.log(dungeon);
 player.position.x = dungeon.center.x;
 player.position.y = dungeon.center.y;
 
