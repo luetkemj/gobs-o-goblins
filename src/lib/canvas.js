@@ -5,6 +5,13 @@ const ctx = canvas.getContext("2d");
 export const grid = {
   width: 100,
   height: 34,
+
+  map: {
+    width: 79,
+    height: 29,
+    x: 21,
+    y: 3,
+  },
 };
 
 const lineHeight = 1.2;
