@@ -89,6 +89,7 @@ export const createDungeon = ({
     prevRoom = room;
   }
 
+  dungeon.rooms = rooms;
   dungeon.tiles = { ...dungeon.tiles, ...roomTiles, ...passageTiles };
 
   // create tile entities

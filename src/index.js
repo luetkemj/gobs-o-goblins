@@ -13,8 +13,8 @@ const dungeon = createDungeon({
   width: grid.map.width,
   height: grid.map.height,
 });
-player.position.x = dungeon.center.x;
-player.position.y = dungeon.center.y;
+player.position.x = dungeon.rooms[0].center.x;
+player.position.y = dungeon.rooms[0].center.y;
 
 render();
 
