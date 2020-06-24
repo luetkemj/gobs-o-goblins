@@ -7,6 +7,8 @@ export class Appearance extends Component {
   };
 }
 
+export class IsBlocking extends Component {}
+
 export class Move extends Component {
   static properties = { x: 0, y: 0 };
 }

@@ -16,6 +16,18 @@ export const movement = () => {
     mx = Math.min(grid.map.width + grid.map.x - 1, Math.max(21, mx));
     my = Math.min(grid.map.height + grid.map.y - 1, Math.max(3, my));
 
+    // check for blockers
+    const blockers = [];
+    for (const e of ecs.entities.all) {
+      if (e.position.x === mx && e.position.y === my && e.isBlocking) {
+        blockers.push(e);
+      }
+    }
+    if (blockers.length) {
+      entity.remove(Move);
+      return;
+    }
+
     entity.position.x = mx;
     entity.position.y = my;
 
