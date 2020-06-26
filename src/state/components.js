@@ -4,6 +4,7 @@ export class Appearance extends Component {
   static properties = {
     color: "#ff0077",
     char: "?",
+    background: "#000",
   };
 }
 
