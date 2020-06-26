@@ -23,7 +23,7 @@ export const movement = () => {
 
     for (const eId of entitiesAtLoc) {
       if (ecs.getEntity(eId).isBlocking) {
-        blockers.push(e);
+        blockers.push(eId);
       }
     }
     if (blockers.length) {
