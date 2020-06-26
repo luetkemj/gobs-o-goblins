@@ -1,4 +1,5 @@
 import ecs from "../state/ecs";
+import { addCacheSet, deleteCacheSet, readCacheSet } from "../state/cache";
 import { grid } from "../lib/canvas";
 import { Move } from "../state/components";
 
@@ -18,8 +19,10 @@ export const movement = () => {
 
     // check for blockers
     const blockers = [];
-    for (const e of ecs.entities.all) {
-      if (e.position.x === mx && e.position.y === my && e.isBlocking) {
+    const entitiesAtLoc = readCacheSet("entitiesAtLocation", `${mx},${my}`);
+
+    for (const eId of entitiesAtLoc) {
+      if (ecs.getEntity(eId).isBlocking) {
         blockers.push(e);
       }
     }
@@ -28,6 +31,12 @@ export const movement = () => {
       return;
     }
 
+    deleteCacheSet(
+      "entitiesAtLocation",
+      `${entity.position.x},${entity.position.y}`,
+      entity.id
+    );
+    addCacheSet("entitiesAtLocation", `${mx},${my}`, entity.id);
     entity.position.x = mx;
     entity.position.y = my;
 

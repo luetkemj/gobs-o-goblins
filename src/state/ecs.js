@@ -1,4 +1,5 @@
 import { Engine } from "geotic";
+import { cache } from "./cache";
 import {
   Appearance,
   IsBlocking,
@@ -24,3 +25,8 @@ player.add(Position);
 player.add(Layer400);
 
 export default ecs;
+
+window.game = {
+  ecs,
+  cache,
+};

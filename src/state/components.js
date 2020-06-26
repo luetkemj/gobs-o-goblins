@@ -1,4 +1,5 @@
 import { Component } from "geotic";
+import { addCacheSet } from "./cache";
 
 export class Appearance extends Component {
   static properties = {
@@ -22,4 +23,9 @@ export class Move extends Component {
 
 export class Position extends Component {
   static properties = { x: 0, y: 0 };
+
+  onAttached() {
+    const locId = `${this.entity.position.x},${this.entity.position.y}`;
+    addCacheSet("entitiesAtLocation", locId, this.entity.id);
+  }
 }
