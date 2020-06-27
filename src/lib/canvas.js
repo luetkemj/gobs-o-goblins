@@ -52,11 +52,11 @@ const drawBackground = ({ color, position }) => {
   );
 };
 
-export const drawCell = (entity) => {
-  const {
-    appearance: { char, background, color },
-    position,
-  } = entity;
+export const drawCell = (entity, options = {}) => {
+  const char = options.char || entity.appearance.char;
+  const background = options.background || entity.appearance.background;
+  const color = options.color || entity.appearance.color;
+  const position = entity.position;
 
   drawBackground({ color: background, position });
   drawChar({ char, color, position });

@@ -5,6 +5,7 @@ import { rectangle, rectsIntersect } from "./grid";
 import {
   Appearance,
   IsBlocking,
+  IsOpaque,
   Layer100,
   Position,
 } from "../state/components";
@@ -105,6 +106,7 @@ export const createDungeon = ({
       const entity = ecs.createEntity();
       entity.add(Appearance, { char: "#", color: "#AAA" });
       entity.add(IsBlocking);
+      entity.add(IsOpaque);
       entity.add(Position, dungeon.tiles[key]);
       entity.add(Layer100);
     }

@@ -11,6 +11,12 @@ export class Appearance extends Component {
 
 export class IsBlocking extends Component {}
 
+export class IsInFov extends Component {}
+
+export class IsOpaque extends Component {}
+
+export class IsRevealed extends Component {}
+
 export class Layer100 extends Component {}
 
 export class Layer300 extends Component {}
