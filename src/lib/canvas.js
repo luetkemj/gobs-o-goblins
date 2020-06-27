@@ -31,13 +31,35 @@ ctx.font = `normal ${fontSize}px 'Fira Code'`;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";
 
-export const drawChar = ({ char, color, position }) => {
+const drawChar = ({ char, color, position }) => {
   ctx.fillStyle = color;
   ctx.fillText(
     char,
     position.x * cellWidth + cellWidth / 2,
     position.y * cellHeight + cellHeight / 2
   );
+};
+
+const drawBackground = ({ color, position }) => {
+  if (color === "transparent") return;
+
+  ctx.fillStyle = color;
+  ctx.fillRect(
+    position.x * cellWidth,
+    position.y * cellHeight,
+    cellWidth,
+    cellHeight
+  );
+};
+
+export const drawCell = (entity, options = {}) => {
+  const char = options.char || entity.appearance.char;
+  const background = options.background || entity.appearance.background;
+  const color = options.color || entity.appearance.color;
+  const position = entity.position;
+
+  drawBackground({ color: background, position });
+  drawChar({ char, color, position });
 };
 
 export const clearCanvas = () =>
