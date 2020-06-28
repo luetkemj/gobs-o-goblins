@@ -2,6 +2,7 @@ import { Engine } from "geotic";
 import { cache } from "./cache";
 import {
   Appearance,
+  Description,
   IsBlocking,
   IsInFov,
   IsOpaque,
@@ -16,6 +17,7 @@ const ecs = new Engine();
 
 // all Components must be `registered` by the engine
 ecs.registerComponent(Appearance);
+ecs.registerComponent(Description);
 ecs.registerComponent(IsBlocking);
 ecs.registerComponent(IsInFov);
 ecs.registerComponent(IsOpaque);

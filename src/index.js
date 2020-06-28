@@ -1,11 +1,19 @@
+import { sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid } from "./lib/canvas";
 import { createDungeon } from "./lib/dungeon";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
-import { player } from "./state/ecs";
-import { Move, Position } from "./state/components";
+import ecs, { player } from "./state/ecs";
+import {
+  Appearance,
+  Description,
+  IsBlocking,
+  Layer400,
+  Move,
+  Position,
+} from "./state/components";
 
 // init game map and player position
 const dungeon = createDungeon({
@@ -17,6 +25,21 @@ const dungeon = createDungeon({
 player.add(Position, {
   x: dungeon.rooms[0].center.x,
   y: dungeon.rooms[0].center.y,
+});
+
+const openTiles = Object.values(dungeon.tiles).filter(
+  (x) => x.sprite === "FLOOR"
+);
+
+times(100, () => {
+  const tile = sample(openTiles);
+
+  const goblin = ecs.createEntity();
+  goblin.add(Appearance, { char: "g", color: "green" });
+  goblin.add(IsBlocking);
+  goblin.add(Layer400);
+  goblin.add(Position, { x: tile.x, y: tile.y });
+  goblin.add(Description, { name: "goblin" });
 });
 
 fov();

@@ -9,6 +9,10 @@ export class Appearance extends Component {
   };
 }
 
+export class Description extends Component {
+  static properties = { name: "noname" };
+}
+
 export class IsBlocking extends Component {}
 
 export class IsInFov extends Component {}
