@@ -2,11 +2,13 @@ import { sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid } from "./lib/canvas";
 import { createDungeon } from "./lib/dungeon";
+import { ai } from "./systems/ai";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import ecs, { player } from "./state/ecs";
 import {
+  Ai,
   Appearance,
   Description,
   IsBlocking,
@@ -31,25 +33,26 @@ const openTiles = Object.values(dungeon.tiles).filter(
   (x) => x.sprite === "FLOOR"
 );
 
-times(100, () => {
+times(5, () => {
   const tile = sample(openTiles);
 
   const goblin = ecs.createEntity();
+  goblin.add(Ai);
   goblin.add(Appearance, { char: "g", color: "green" });
+  goblin.add(Description, { name: "goblin" });
   goblin.add(IsBlocking);
   goblin.add(Layer400);
   goblin.add(Position, { x: tile.x, y: tile.y });
-  goblin.add(Description, { name: "goblin" });
 });
 
 fov();
 render();
 
 let userInput = null;
+let playerTurn = true;
 
 document.addEventListener("keydown", (ev) => {
   userInput = ev.key;
-  processUserInput();
 });
 
 const processUserInput = () => {
@@ -66,7 +69,33 @@ const processUserInput = () => {
     player.add(Move, { x: -1, y: 0 });
   }
 
-  movement();
-  fov();
-  render();
+  userInput = null;
 };
+
+const update = () => {
+  if (playerTurn && userInput) {
+    console.log("I am @, hear me roar.");
+    processUserInput();
+    movement();
+    fov();
+    render();
+
+    playerTurn = false;
+  }
+
+  if (!playerTurn) {
+    ai();
+    movement();
+    fov();
+    render();
+
+    playerTurn = true;
+  }
+};
+
+const gameLoop = () => {
+  update();
+  requestAnimationFrame(gameLoop);
+};
+
+requestAnimationFrame(gameLoop);
