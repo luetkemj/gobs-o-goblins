@@ -27,6 +27,10 @@ export const movement = () => {
       }
     }
     if (blockers.length) {
+      blockers.forEach((eId) =>
+        console.log(`You kicked a ${ecs.getEntity(eId).description.name}!`)
+      );
+
       entity.remove(Move);
       return;
     }

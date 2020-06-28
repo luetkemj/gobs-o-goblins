@@ -4,6 +4,7 @@ import { rectangle, rectsIntersect } from "./grid";
 
 import {
   Appearance,
+  Description,
   IsBlocking,
   IsOpaque,
   Layer100,
@@ -109,6 +110,7 @@ export const createDungeon = ({
       entity.add(IsOpaque);
       entity.add(Position, dungeon.tiles[key]);
       entity.add(Layer100);
+      entity.add(Description, { name: "wall" });
     }
 
     if (tile.sprite === "FLOOR") {
@@ -116,6 +118,7 @@ export const createDungeon = ({
       entity.add(Appearance, { char: "•", color: "#555" });
       entity.add(Position, dungeon.tiles[key]);
       entity.add(Layer100);
+      entity.add(Description, { name: "floor" });
     }
   });
 
