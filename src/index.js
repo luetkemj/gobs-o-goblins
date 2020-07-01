@@ -1,6 +1,8 @@
-import { sample, times } from "lodash";
+import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
-import { grid } from "./lib/canvas";
+import { grid, pxToCell } from "./lib/canvas";
+import { toLocId } from "./lib/grid";
+import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { fov } from "./systems/fov";
@@ -86,3 +88,26 @@ const gameLoop = () => {
 };
 
 requestAnimationFrame(gameLoop);
+
+// Only do this during development
+if (process.env.NODE_ENV === "development") {
+  const canvas = document.querySelector("#canvas");
+
+  canvas.onclick = (e) => {
+    const [x, y] = pxToCell(e);
+    const locId = toLocId({ x, y });
+
+    readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
+      const entity = ecs.getEntity(eId);
+
+      console.log(
+        `${get(entity, "appearance.char", "?")} ${get(
+          entity,
+          "description.name",
+          "?"
+        )}`,
+        entity.serialize()
+      );
+    });
+  };
+}

@@ -11,19 +11,16 @@ export class Appearance extends Component {
   };
 }
 
+export class Defense extends Component {
+  static properties = { max: 1, current: 1 };
+}
+
 export class Description extends Component {
   static properties = { name: "noname" };
 }
 
-export class Defense extends Component {
-  static properties = { rating: 5 };
-}
-
 export class Health extends Component {
-  static properties = {
-    current: 25,
-    max: 25,
-  };
+  static properties = { max: 10, current: 10 };
 }
 
 export class IsBlocking extends Component {}
@@ -54,7 +51,5 @@ export class Position extends Component {
 }
 
 export class Power extends Component {
-  static properties = {
-    rating: 10,
-  };
+  static properties = { max: 5, current: 5 };
 }

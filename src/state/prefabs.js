@@ -12,9 +12,12 @@ export const Being = {
   name: "Being",
   components: [
     { type: "Appearance" },
+    { type: "Defense" },
     { type: "Description" },
+    { type: "Health" },
     { type: "IsBlocking" },
     { type: "Layer400" },
+    { type: "Power" },
   ],
 };
 

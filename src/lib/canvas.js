@@ -64,3 +64,13 @@ export const drawCell = (entity, options = {}) => {
 
 export const clearCanvas = () =>
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+export const pxToCell = (ev) => {
+  const bounds = canvas.getBoundingClientRect();
+  const relativeX = ev.clientX - bounds.left;
+  const relativeY = ev.clientY - bounds.top;
+  const colPos = Math.trunc((relativeX / cellWidth) * pixelRatio);
+  const rowPos = Math.trunc((relativeY / cellHeight) * pixelRatio);
+
+  return [colPos, rowPos];
+};
