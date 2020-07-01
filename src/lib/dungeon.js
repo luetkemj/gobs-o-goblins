@@ -2,14 +2,7 @@ import { random, times } from "lodash";
 import ecs from "../state/ecs";
 import { rectangle, rectsIntersect } from "./grid";
 
-import {
-  Appearance,
-  Description,
-  IsBlocking,
-  IsOpaque,
-  Layer100,
-  Position,
-} from "../state/components";
+import { Position } from "../state/components";
 
 function digHorizontalPassage(x1, x2, y) {
   const tiles = {};
@@ -104,21 +97,11 @@ export const createDungeon = ({
     const tile = dungeon.tiles[key];
 
     if (tile.sprite === "WALL") {
-      const entity = ecs.createEntity();
-      entity.add(Appearance, { char: "#", color: "#AAA" });
-      entity.add(IsBlocking);
-      entity.add(IsOpaque);
-      entity.add(Position, dungeon.tiles[key]);
-      entity.add(Layer100);
-      entity.add(Description, { name: "wall" });
+      ecs.createPrefab("Wall").add(Position, dungeon.tiles[key]);
     }
 
     if (tile.sprite === "FLOOR") {
-      const entity = ecs.createEntity();
-      entity.add(Appearance, { char: "•", color: "#555" });
-      entity.add(Position, dungeon.tiles[key]);
-      entity.add(Layer100);
-      entity.add(Description, { name: "floor" });
+      ecs.createPrefab("Floor").add(Position, dungeon.tiles[key]);
     }
   });
 

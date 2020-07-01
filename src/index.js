@@ -6,16 +6,8 @@ import { ai } from "./systems/ai";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
-import ecs, { player } from "./state/ecs";
-import {
-  Ai,
-  Appearance,
-  Description,
-  IsBlocking,
-  Layer400,
-  Move,
-  Position,
-} from "./state/components";
+import ecs from "./state/ecs";
+import { Move, Position } from "./state/components";
 
 // init game map and player position
 const dungeon = createDungeon({
@@ -24,6 +16,8 @@ const dungeon = createDungeon({
   width: grid.map.width,
   height: grid.map.height,
 });
+
+const player = ecs.createPrefab("Player");
 player.add(Position, {
   x: dungeon.rooms[0].center.x,
   y: dungeon.rooms[0].center.y,
@@ -35,17 +29,10 @@ const openTiles = Object.values(dungeon.tiles).filter(
 
 times(5, () => {
   const tile = sample(openTiles);
-
-  const goblin = ecs.createEntity();
-  goblin.add(Ai);
-  goblin.add(Appearance, { char: "g", color: "green" });
-  goblin.add(Description, { name: "goblin" });
-  goblin.add(IsBlocking);
-  goblin.add(Layer400);
-  goblin.add(Position, { x: tile.x, y: tile.y });
+  ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
 });
 
-fov();
+fov(player);
 render();
 
 let userInput = null;
@@ -77,7 +64,7 @@ const update = () => {
     console.log("I am @, hear me roar.");
     processUserInput();
     movement();
-    fov();
+    fov(player);
     render();
 
     playerTurn = false;
@@ -86,7 +73,7 @@ const update = () => {
   if (!playerTurn) {
     ai();
     movement();
-    fov();
+    fov(player);
     render();
 
     playerTurn = true;

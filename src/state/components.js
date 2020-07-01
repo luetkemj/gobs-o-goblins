@@ -15,6 +15,17 @@ export class Description extends Component {
   static properties = { name: "noname" };
 }
 
+export class Defense extends Component {
+  static properties = { rating: 5 };
+}
+
+export class Health extends Component {
+  static properties = {
+    current: 25,
+    max: 25,
+  };
+}
+
 export class IsBlocking extends Component {}
 
 export class IsInFov extends Component {}
@@ -40,4 +51,10 @@ export class Position extends Component {
     const locId = `${this.entity.position.x},${this.entity.position.y}`;
     addCacheSet("entitiesAtLocation", locId, this.entity.id);
   }
+}
+
+export class Power extends Component {
+  static properties = {
+    rating: 10,
+  };
 }
