@@ -21,6 +21,11 @@ export class Description extends Component {
 
 export class Health extends Component {
   static properties = { max: 10, current: 10 };
+
+  onTakeDamage(evt) {
+    this.current -= evt.data.amount;
+    evt.handle();
+  }
 }
 
 export class IsBlocking extends Component {}

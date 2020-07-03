@@ -7,6 +7,31 @@ const movableEntities = ecs.createQuery({
   all: [Move],
 });
 
+const attack = (entity, target) => {
+  const damage = entity.power.current - target.defense.current;
+  target.fireEvent("take-damage", { amount: damage });
+
+  if (target.health.current <= 0) {
+    kill(target);
+
+    return console.log(
+      `${entity.description.name} kicked a ${target.description.name} for ${damage} damage and killed it!`
+    );
+  }
+
+  console.log(
+    `${entity.description.name} kicked a ${target.description.name} for ${damage} damage!`
+  );
+};
+
+const kill = (entity) => {
+  entity.appearance.char = "%";
+  entity.remove("Ai");
+  entity.remove("IsBlocking");
+  entity.remove("Layer400");
+  entity.add("Layer300");
+};
+
 export const movement = () => {
   movableEntities.get().forEach((entity) => {
     let mx = entity.position.x + entity.move.x;
@@ -19,6 +44,7 @@ export const movement = () => {
 
     // check for blockers
     const blockers = [];
+    // read from cache
     const entitiesAtLoc = readCacheSet("entitiesAtLocation", `${mx},${my}`);
 
     for (const eId of entitiesAtLoc) {
@@ -27,9 +53,16 @@ export const movement = () => {
       }
     }
     if (blockers.length) {
-      blockers.forEach((eId) =>
-        console.log(`You kicked a ${ecs.getEntity(eId).description.name}!`)
-      );
+      blockers.forEach((eId) => {
+        const target = ecs.getEntity(eId);
+        if (target.has("Health") && target.has("Defense")) {
+          attack(entity, target);
+        } else {
+          console.log(
+            `${entity.description.name} bump into a ${target.description.name}`
+          );
+        }
+      });
 
       entity.remove(Move);
       return;
@@ -41,6 +74,7 @@ export const movement = () => {
       entity.id
     );
     addCacheSet("entitiesAtLocation", `${mx},${my}`, entity.id);
+
     entity.position.x = mx;
     entity.position.y = my;
 
