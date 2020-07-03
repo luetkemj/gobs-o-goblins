@@ -62,6 +62,10 @@ const processUserInput = () => {
 };
 
 const update = () => {
+  if (player.isDead) {
+    return;
+  }
+
   if (playerTurn && userInput) {
     console.log("I am @, hear me roar.");
     processUserInput();
@@ -73,7 +77,7 @@ const update = () => {
   }
 
   if (!playerTurn) {
-    ai();
+    ai(player);
     movement();
     fov(player);
     render();

@@ -30,6 +30,8 @@ export class Health extends Component {
 
 export class IsBlocking extends Component {}
 
+export class IsDead extends Component {}
+
 export class IsInFov extends Component {}
 
 export class IsOpaque extends Component {}
@@ -43,7 +45,7 @@ export class Layer300 extends Component {}
 export class Layer400 extends Component {}
 
 export class Move extends Component {
-  static properties = { x: 0, y: 0 };
+  static properties = { x: 0, y: 0, relative: true };
 }
 
 export class Position extends Component {

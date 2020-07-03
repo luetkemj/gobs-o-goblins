@@ -7,6 +7,7 @@ import {
   Defense,
   Health,
   IsBlocking,
+  IsDead,
   IsInFov,
   IsOpaque,
   IsRevealed,
@@ -29,6 +30,7 @@ ecs.registerComponent(Description);
 ecs.registerComponent(Defense);
 ecs.registerComponent(Health);
 ecs.registerComponent(IsBlocking);
+ecs.registerComponent(IsDead);
 ecs.registerComponent(IsInFov);
 ecs.registerComponent(IsOpaque);
 ecs.registerComponent(IsRevealed);

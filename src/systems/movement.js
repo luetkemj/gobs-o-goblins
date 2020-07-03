@@ -30,12 +30,18 @@ const kill = (entity) => {
   entity.remove("IsBlocking");
   entity.remove("Layer400");
   entity.add("Layer300");
+  entity.add("IsDead");
 };
 
 export const movement = () => {
   movableEntities.get().forEach((entity) => {
-    let mx = entity.position.x + entity.move.x;
-    let my = entity.position.y + entity.move.y;
+    let mx = entity.move.x;
+    let my = entity.move.y;
+
+    if (entity.move.relative) {
+      mx = entity.position.x + entity.move.x;
+      my = entity.position.y + entity.move.y;
+    }
 
     // this is where we will run any checks to see if entity can move to new location
     // observe map boundaries
