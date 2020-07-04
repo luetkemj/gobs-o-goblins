@@ -51,6 +51,12 @@ ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
 
+export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export const addLog = (text) => {
+  messageLog.unshift(text);
+  console.log(messageLog);
+};
+
 export default ecs;
 
 window.game = {

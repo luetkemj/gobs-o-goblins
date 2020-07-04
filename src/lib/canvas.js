@@ -12,6 +12,27 @@ export const grid = {
     x: 21,
     y: 3,
   },
+
+  messageLog: {
+    width: 79,
+    height: 3,
+    x: 21,
+    y: 0,
+  },
+
+  playerHud: {
+    width: 20,
+    height: 34,
+    x: 0,
+    y: 0,
+  },
+
+  infoBar: {
+    width: 79,
+    height: 3,
+    x: 21,
+    y: 32,
+  },
 };
 
 const lineHeight = 1.2;
@@ -73,4 +94,28 @@ export const pxToCell = (ev) => {
   const rowPos = Math.trunc((relativeY / cellHeight) * pixelRatio);
 
   return [colPos, rowPos];
+};
+
+export const drawText = (template) => {
+  const textToRender = template.text;
+
+  textToRender.split("").forEach((char, index) => {
+    const options = { ...template };
+    const character = {
+      appearance: {
+        char,
+        background: options.background,
+        color: options.color,
+      },
+      position: {
+        x: index + options.x,
+        y: options.y,
+      },
+    };
+
+    delete options.x;
+    delete options.y;
+
+    drawCell(character, options);
+  });
 };

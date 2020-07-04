@@ -1,4 +1,4 @@
-import ecs from "../state/ecs";
+import ecs, { addLog } from "../state/ecs";
 import { addCacheSet, deleteCacheSet, readCacheSet } from "../state/cache";
 import { grid } from "../lib/canvas";
 import { Move } from "../state/components";
@@ -14,12 +14,12 @@ const attack = (entity, target) => {
   if (target.health.current <= 0) {
     kill(target);
 
-    return console.log(
+    return addLog(
       `${entity.description.name} kicked a ${target.description.name} for ${damage} damage and killed it!`
     );
   }
 
-  console.log(
+  addLog(
     `${entity.description.name} kicked a ${target.description.name} for ${damage} damage!`
   );
 };
@@ -64,7 +64,7 @@ export const movement = () => {
         if (target.has("Health") && target.has("Defense")) {
           attack(entity, target);
         } else {
-          console.log(
+          addLog(
             `${entity.description.name} bump into a ${target.description.name}`
           );
         }
