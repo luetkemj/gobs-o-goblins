@@ -1,5 +1,4 @@
 import { Engine } from "geotic";
-import { cache } from "./cache";
 import {
   Ai,
   Appearance,
@@ -41,19 +40,18 @@ ecs.registerComponent(Move);
 ecs.registerComponent(Position);
 ecs.registerComponent(Power);
 
-// register "primitives" first!
+// register "base" prefabs first!
 ecs.registerPrefab(Tile);
 ecs.registerPrefab(Being);
 
 ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
-
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
 
-export default ecs;
-
-window.game = {
-  ecs,
-  cache,
+export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export const addLog = (text) => {
+  messageLog.unshift(text);
 };
+
+export default ecs;

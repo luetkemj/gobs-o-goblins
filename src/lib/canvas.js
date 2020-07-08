@@ -12,6 +12,27 @@ export const grid = {
     x: 21,
     y: 3,
   },
+
+  messageLog: {
+    width: 79,
+    height: 3,
+    x: 21,
+    y: 0,
+  },
+
+  playerHud: {
+    width: 20,
+    height: 34,
+    x: 0,
+    y: 0,
+  },
+
+  infoBar: {
+    width: 79,
+    height: 3,
+    x: 21,
+    y: 32,
+  },
 };
 
 const lineHeight = 1.2;
@@ -31,7 +52,7 @@ ctx.font = `normal ${fontSize}px 'Fira Code'`;
 ctx.textAlign = "center";
 ctx.textBaseline = "middle";
 
-const drawChar = ({ char, color, position }) => {
+export const drawChar = ({ char, color, position }) => {
   ctx.fillStyle = color;
   ctx.fillText(
     char,
@@ -44,6 +65,7 @@ const drawBackground = ({ color, position }) => {
   if (color === "transparent") return;
 
   ctx.fillStyle = color;
+
   ctx.fillRect(
     position.x * cellWidth,
     position.y * cellHeight,
@@ -60,6 +82,30 @@ export const drawCell = (entity, options = {}) => {
 
   drawBackground({ color: background, position });
   drawChar({ char, color, position });
+};
+
+export const drawText = (template) => {
+  const textToRender = template.text;
+
+  textToRender.split("").forEach((char, index) => {
+    const options = { ...template };
+    const character = {
+      appearance: {
+        char,
+        background: options.background,
+        color: options.color,
+      },
+      position: {
+        x: index + options.x,
+        y: options.y,
+      },
+    };
+
+    delete options.x;
+    delete options.y;
+
+    drawCell(character, options);
+  });
 };
 
 export const clearCanvas = () =>
