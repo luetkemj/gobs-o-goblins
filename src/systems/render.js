@@ -9,10 +9,10 @@ import {
   Layer300,
   Layer400,
 } from "../state/components";
+import { messageLog } from "../state/ecs";
 import { clearCanvas, drawCell, drawText, grid, pxToCell } from "../lib/canvas";
 import { toLocId } from "../lib/grid";
 import { readCacheSet } from "../state/cache";
-import { messageLog } from "../state/ecs";
 
 const layer100Entities = ecs.createQuery({
   all: [Position, Appearance, Layer100],
@@ -25,8 +25,7 @@ const layer300Entities = ecs.createQuery({
 });
 
 const layer400Entities = ecs.createQuery({
-  all: [Position, Appearance, Layer400],
-  any: [IsInFov],
+  all: [Position, Appearance, Layer400, IsInFov],
 });
 
 export const render = (player) => {
@@ -56,8 +55,34 @@ export const render = (player) => {
     }
   });
 
-  // player hud
-  // player name
+  drawText({
+    text: `${player.appearance.char} ${player.description.name}`,
+    background: `${player.appearance.background}`,
+    color: `${player.appearance.color}`,
+    x: grid.playerHud.x,
+    y: grid.playerHud.y,
+  });
+
+  drawText({
+    text: "♥".repeat(grid.playerHud.width),
+    background: "black",
+    color: "#333",
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 1,
+  });
+
+  const hp = player.health.current / player.health.max;
+
+  if (hp > 0) {
+    drawText({
+      text: "♥".repeat(hp * grid.playerHud.width),
+      background: "black",
+      color: "red",
+      x: grid.playerHud.x,
+      y: grid.playerHud.y + 1,
+    });
+  }
+
   drawText({
     text: messageLog[2],
     background: "#000",
@@ -81,40 +106,8 @@ export const render = (player) => {
     x: grid.messageLog.x,
     y: grid.messageLog.y + 2,
   });
-
-  // player health bar
-  const hp = player.health.current / player.health.max;
-
-  drawText({
-    text: "♥".repeat(grid.playerHud.width),
-    background: "black",
-    color: "#333",
-    x: 0,
-    y: 1,
-  });
-
-  if (hp > 0) {
-    drawText({
-      text: "♥".repeat(hp * grid.playerHud.width),
-      background: "black",
-      color: "red",
-      x: 0,
-      y: 1,
-    });
-  }
-
-  // message log
-  drawText({
-    text: "@ You",
-    background: "#000",
-    color: "white",
-    x: 0,
-    y: 0,
-  });
 };
 
-// info bar on mouseover
-const canvas = document.querySelector("#canvas");
 const clearInfoBar = () =>
   drawText({
     text: ` `.repeat(grid.infoBar.width),
@@ -123,6 +116,7 @@ const clearInfoBar = () =>
     background: "black",
   });
 
+const canvas = document.querySelector("#canvas");
 canvas.onmousemove = throttle((e) => {
   const [x, y] = pxToCell(e);
   const locId = toLocId({ x, y });

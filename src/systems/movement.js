@@ -28,9 +28,9 @@ const kill = (entity) => {
   entity.appearance.char = "%";
   entity.remove("Ai");
   entity.remove("IsBlocking");
+  entity.add("IsDead");
   entity.remove("Layer400");
   entity.add("Layer300");
-  entity.add("IsDead");
 };
 
 export const movement = () => {
