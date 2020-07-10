@@ -28,6 +28,16 @@ export class Health extends Component {
   }
 }
 
+export class Inventory extends Component {
+  static properties = {
+    list: new Set(),
+  };
+
+  onPickUp(evt) {
+    this.list.add(evt.data);
+  }
+}
+
 export class IsBlocking extends Component {}
 
 export class IsDead extends Component {}
@@ -37,7 +47,11 @@ export class IsInFov extends Component {}
 export class IsOpaque extends Component {}
 
 export class IsPickup extends Component {
+  onPickUp(evt) {
+    this.entity.remove("Position");
+  }
 }
+
 export class IsRevealed extends Component {}
 
 export class Layer100 extends Component {}

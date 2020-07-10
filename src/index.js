@@ -8,7 +8,7 @@ import { ai } from "./systems/ai";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
-import ecs from "./state/ecs";
+import ecs, { addLog } from "./state/ecs";
 import { Move, Position } from "./state/components";
 
 // init game map and player position
@@ -61,6 +61,23 @@ const processUserInput = () => {
   }
   if (userInput === "ArrowLeft") {
     player.add(Move, { x: -1, y: 0 });
+  }
+  if (userInput === "g") {
+    let pickupFound = false;
+    readCacheSet("entitiesAtLocation", toLocId(player.position)).forEach(
+      (eId) => {
+        const entity = ecs.getEntity(eId);
+        if (entity.isPickup) {
+          pickupFound = true;
+          player.fireEvent("pick-up", entity.id);
+          entity.fireEvent("pick-up");
+          addLog(`You pickup a ${entity.description.name}`);
+        }
+      }
+    );
+    if (!pickupFound) {
+      addLog("There is nothing to pick up here");
+    }
   }
 
   userInput = null;

@@ -90,6 +90,7 @@ export const Player = {
       type: "Description",
       properties: { name: "You" },
     },
+    { type: "Inventory" },
   ],
 };
 
