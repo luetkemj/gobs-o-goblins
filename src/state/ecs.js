@@ -9,6 +9,7 @@ import {
   IsDead,
   IsInFov,
   IsOpaque,
+  IsPickup,
   IsRevealed,
   Layer100,
   Layer300,
@@ -18,7 +19,16 @@ import {
   Power,
 } from "./components";
 
-import { Being, Tile, Goblin, Player, Wall, Floor } from "./prefabs";
+import {
+  Being,
+  Item,
+  Tile,
+  HealthPotion,
+  Goblin,
+  Player,
+  Wall,
+  Floor,
+} from "./prefabs";
 
 const ecs = new Engine();
 
@@ -32,6 +42,7 @@ ecs.registerComponent(IsBlocking);
 ecs.registerComponent(IsDead);
 ecs.registerComponent(IsInFov);
 ecs.registerComponent(IsOpaque);
+ecs.registerComponent(IsPickup);
 ecs.registerComponent(IsRevealed);
 ecs.registerComponent(Layer100);
 ecs.registerComponent(Layer300);
@@ -41,9 +52,11 @@ ecs.registerComponent(Position);
 ecs.registerComponent(Power);
 
 // register "base" prefabs first!
-ecs.registerPrefab(Tile);
 ecs.registerPrefab(Being);
+ecs.registerPrefab(Item);
+ecs.registerPrefab(Tile);
 
+ecs.registerPrefab(HealthPotion);
 ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);
