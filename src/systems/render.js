@@ -84,6 +84,31 @@ export const render = (player) => {
   }
 
   drawText({
+    text: "INVENTORY",
+    background: "black",
+    color: "white",
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 3,
+  });
+
+  if (player.inventory.list.size) {
+    let y = grid.playerHud.y + 4;
+
+    player.inventory.list.forEach((eId) => {
+      const entity = ecs.getEntity(eId);
+      drawText({
+        text: `${entity.appearance.char} ${entity.description.name}`,
+        background: entity.appearance.background,
+        color: entity.appearance.color,
+        x: grid.playerHud.x,
+        y: y,
+      });
+
+      y++;
+    });
+  }
+
+  drawText({
     text: messageLog[2],
     background: "#000",
     color: "#666",
