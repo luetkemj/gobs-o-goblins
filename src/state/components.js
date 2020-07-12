@@ -1,5 +1,5 @@
 import { Component } from "geotic";
-import { addCacheSet } from "./cache";
+import { addCacheSet, deleteCacheSet } from "./cache";
 
 export class Ai extends Component {}
 
@@ -30,11 +30,18 @@ export class Health extends Component {
 
 export class Inventory extends Component {
   static properties = {
-    list: new Set(),
+    list: [],
   };
 
   onPickUp(evt) {
-    this.list.add(evt.data);
+    this.list.push(evt.data);
+
+    evt.handle();
+  }
+
+  onDrop(evt) {
+    this.list.splice(evt.data.index, 1);
+    evt.handle();
   }
 }
 
@@ -48,7 +55,20 @@ export class IsOpaque extends Component {}
 
 export class IsPickup extends Component {
   onPickUp(evt) {
+    // todo: handle this on a Position component's onBeforeDetached method
+    // https://github.com/ddmills/geotic/issues/15
+    const locId = `${this.entity.position.x},${this.entity.position.y}`;
+    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
+
     this.entity.remove("Position");
+    evt.handle();
+  }
+
+  onDrop(evt) {
+    const { x, y } = evt.data;
+    this.entity.add("Position", { x, y });
+
+    evt.handle();
   }
 }
 

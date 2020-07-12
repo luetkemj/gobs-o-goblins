@@ -10,9 +10,17 @@ import {
   Layer400,
 } from "../state/components";
 import { messageLog } from "../state/ecs";
-import { clearCanvas, drawCell, drawText, grid, pxToCell } from "../lib/canvas";
+import {
+  clearCanvas,
+  drawCell,
+  drawRect,
+  drawText,
+  grid,
+  pxToCell,
+} from "../lib/canvas";
 import { toLocId } from "../lib/grid";
 import { readCacheSet } from "../state/cache";
+import { gameState, selectedInventoryIndex } from "../index";
 
 const layer100Entities = ecs.createQuery({
   all: [Position, Appearance, Layer100],
@@ -84,31 +92,6 @@ export const render = (player) => {
   }
 
   drawText({
-    text: "INVENTORY",
-    background: "black",
-    color: "white",
-    x: grid.playerHud.x,
-    y: grid.playerHud.y + 3,
-  });
-
-  if (player.inventory.list.size) {
-    let y = grid.playerHud.y + 4;
-
-    player.inventory.list.forEach((eId) => {
-      const entity = ecs.getEntity(eId);
-      drawText({
-        text: `${entity.appearance.char} ${entity.description.name}`,
-        background: entity.appearance.background,
-        color: entity.appearance.color,
-        x: grid.playerHud.x,
-        y: y,
-      });
-
-      y++;
-    });
-  }
-
-  drawText({
     text: messageLog[2],
     background: "#000",
     color: "#666",
@@ -131,6 +114,50 @@ export const render = (player) => {
     x: grid.messageLog.x,
     y: grid.messageLog.y + 2,
   });
+
+  if (gameState === "INVENTORY") {
+    // translucent to obscure the game map
+    drawRect(0, 0, grid.width, grid.height, "rgba(0,0,0,0.65)");
+
+    drawText({
+      text: "—".repeat(grid.inventory.width),
+      background: "black",
+      color: "white",
+      x: grid.inventory.x,
+      y: grid.inventory.y + 1,
+    });
+
+    drawText({
+      text: "INVENTORY",
+      background: "black",
+      color: "white",
+      x: grid.inventory.x,
+      y: grid.inventory.y + 2,
+    });
+
+    if (player.inventory.list.length) {
+      player.inventory.list.forEach((eId, idx) => {
+        const entity = ecs.getEntity(eId);
+        drawText({
+          text: `${idx === selectedInventoryIndex ? "*" : " "}${
+            entity.description.name
+          }`,
+          background: "black",
+          color: "white",
+          x: grid.inventory.x,
+          y: grid.inventory.y + 3 + idx,
+        });
+      });
+    } else {
+      drawText({
+        text: "-empty-",
+        background: "black",
+        color: "#666",
+        x: grid.inventory.x,
+        y: grid.inventory.y + 3,
+      });
+    }
+  }
 };
 
 const clearInfoBar = () =>
