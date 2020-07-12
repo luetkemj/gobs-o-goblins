@@ -90,7 +90,7 @@ const processUserInput = () => {
   }
 
   if (gameState === "INVENTORY") {
-    if (userInput === "i") {
+    if (userInput === "i" || userInput === "Escape") {
       gameState = "GAME";
     }
 
