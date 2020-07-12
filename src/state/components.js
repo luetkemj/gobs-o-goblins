@@ -1,6 +1,11 @@
 import { Component } from "geotic";
 import { addCacheSet, deleteCacheSet } from "./cache";
 
+export class ActiveEffects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "" };
+}
+
 export class Ai extends Component {}
 
 export class Appearance extends Component {
@@ -11,12 +16,23 @@ export class Appearance extends Component {
   };
 }
 
+export class Consumable extends Component {
+  onConsume() {
+    this.entity.destroy();
+  }
+}
+
 export class Defense extends Component {
   static properties = { max: 1, current: 1 };
 }
 
 export class Description extends Component {
   static properties = { name: "noname" };
+}
+
+export class Effects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "", active: false };
 }
 
 export class Health extends Component {
@@ -40,6 +56,11 @@ export class Inventory extends Component {
   }
 
   onDrop(evt) {
+    this.list.splice(evt.data.index, 1);
+    evt.handle();
+  }
+
+  onRemove(evt) {
     this.list.splice(evt.data.index, 1);
     evt.handle();
   }

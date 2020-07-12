@@ -5,6 +5,7 @@ import { toLocId } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
+import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
@@ -29,12 +30,12 @@ const openTiles = Object.values(dungeon.tiles).filter(
   (x) => x.sprite === "FLOOR"
 );
 
-times(0, () => {
+times(5, () => {
   const tile = sample(openTiles);
   ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
 });
 
-times(50, () => {
+times(10, () => {
   const tile = sample(openTiles);
   ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
 });
@@ -120,6 +121,29 @@ const processUserInput = () => {
       }
     }
 
+    if (userInput === "c") {
+      const entity = ecs.getEntity(
+        player.inventory.list[selectedInventoryIndex]
+      );
+
+      if (entity) {
+        if (entity.has("Effects")) {
+          // clone all effects and add to self
+          entity
+            .get("Effects")
+            .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
+        }
+
+        entity.fireEvent("consume", {
+          index: selectedInventoryIndex,
+        });
+
+        player.fireEvent("remove", {
+          index: selectedInventoryIndex,
+        });
+      }
+    }
+
     userInput = null;
   }
 };
@@ -131,12 +155,14 @@ const update = () => {
 
   if (playerTurn && userInput && gameState === "INVENTORY") {
     processUserInput();
+    effects();
     render(player);
     playerTurn = true;
   }
 
   if (playerTurn && userInput && gameState === "GAME") {
     processUserInput();
+    effects();
     movement();
     fov(player);
     render(player);
@@ -148,6 +174,7 @@ const update = () => {
 
   if (!playerTurn) {
     ai(player);
+    effects();
     movement();
     fov(player);
     render(player);

@@ -120,19 +120,19 @@ export const render = (player) => {
     drawRect(0, 0, grid.width, grid.height, "rgba(0,0,0,0.65)");
 
     drawText({
-      text: "—".repeat(grid.inventory.width),
-      background: "black",
-      color: "white",
-      x: grid.inventory.x,
-      y: grid.inventory.y + 1,
-    });
-
-    drawText({
       text: "INVENTORY",
       background: "black",
       color: "white",
       x: grid.inventory.x,
-      y: grid.inventory.y + 2,
+      y: grid.inventory.y,
+    });
+
+    drawText({
+      text: "(c)Consume (d)Drop",
+      background: "black",
+      color: "#666",
+      x: grid.inventory.x,
+      y: grid.inventory.y + 1,
     });
 
     if (player.inventory.list.length) {

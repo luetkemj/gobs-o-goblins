@@ -38,9 +38,9 @@ export const grid = {
 
   inventory: {
     width: 37,
-    height: 29,
+    height: 28,
     x: 21,
-    y: 3,
+    y: 4,
   },
 };
 
