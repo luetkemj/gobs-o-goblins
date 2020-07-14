@@ -10,9 +10,17 @@ import {
   Layer400,
 } from "../state/components";
 import { messageLog } from "../state/ecs";
-import { clearCanvas, drawCell, drawText, grid, pxToCell } from "../lib/canvas";
+import {
+  clearCanvas,
+  drawCell,
+  drawRect,
+  drawText,
+  grid,
+  pxToCell,
+} from "../lib/canvas";
 import { toLocId } from "../lib/grid";
 import { readCacheSet } from "../state/cache";
+import { gameState, selectedInventoryIndex } from "../index";
 
 const layer100Entities = ecs.createQuery({
   all: [Position, Appearance, Layer100],
@@ -106,6 +114,50 @@ export const render = (player) => {
     x: grid.messageLog.x,
     y: grid.messageLog.y + 2,
   });
+
+  if (gameState === "INVENTORY") {
+    // translucent to obscure the game map
+    drawRect(0, 0, grid.width, grid.height, "rgba(0,0,0,0.65)");
+
+    drawText({
+      text: "INVENTORY",
+      background: "black",
+      color: "white",
+      x: grid.inventory.x,
+      y: grid.inventory.y,
+    });
+
+    drawText({
+      text: "(c)Consume (d)Drop",
+      background: "black",
+      color: "#666",
+      x: grid.inventory.x,
+      y: grid.inventory.y + 1,
+    });
+
+    if (player.inventory.list.length) {
+      player.inventory.list.forEach((eId, idx) => {
+        const entity = ecs.getEntity(eId);
+        drawText({
+          text: `${idx === selectedInventoryIndex ? "*" : " "}${
+            entity.description.name
+          }`,
+          background: "black",
+          color: "white",
+          x: grid.inventory.x,
+          y: grid.inventory.y + 3 + idx,
+        });
+      });
+    } else {
+      drawText({
+        text: "-empty-",
+        background: "black",
+        color: "#666",
+        x: grid.inventory.x,
+        y: grid.inventory.y + 3,
+      });
+    }
+  }
 };
 
 const clearInfoBar = () =>

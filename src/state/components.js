@@ -1,5 +1,10 @@
 import { Component } from "geotic";
-import { addCacheSet } from "./cache";
+import { addCacheSet, deleteCacheSet } from "./cache";
+
+export class ActiveEffects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "" };
+}
 
 export class Ai extends Component {}
 
@@ -11,12 +16,23 @@ export class Appearance extends Component {
   };
 }
 
+export class Consumable extends Component {
+  onConsume() {
+    this.entity.destroy();
+  }
+}
+
 export class Defense extends Component {
   static properties = { max: 1, current: 1 };
 }
 
 export class Description extends Component {
   static properties = { name: "noname" };
+}
+
+export class Effects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "", active: false };
 }
 
 export class Health extends Component {
@@ -28,6 +44,24 @@ export class Health extends Component {
   }
 }
 
+export class Inventory extends Component {
+  static properties = {
+    list: [],
+  };
+
+  onPickUp(evt) {
+    this.list.push(evt.data);
+  }
+
+  onDrop(evt) {
+    this.list.splice(evt.data.index, 1);
+  }
+
+  onRemove(evt) {
+    this.list.splice(evt.data.index, 1);
+  }
+}
+
 export class IsBlocking extends Component {}
 
 export class IsDead extends Component {}
@@ -35,6 +69,22 @@ export class IsDead extends Component {}
 export class IsInFov extends Component {}
 
 export class IsOpaque extends Component {}
+
+export class IsPickup extends Component {
+  onPickUp(evt) {
+    // todo: handle this on a Position component's onBeforeDetached method
+    // https://github.com/ddmills/geotic/issues/15
+    const locId = `${this.entity.position.x},${this.entity.position.y}`;
+    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
+
+    this.entity.remove("Position");
+  }
+
+  onDrop(evt) {
+    const { x, y } = evt.data;
+    this.entity.add("Position", { x, y });
+  }
+}
 
 export class IsRevealed extends Component {}
 

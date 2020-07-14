@@ -5,10 +5,11 @@ import { toLocId } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
+import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
-import ecs from "./state/ecs";
+import ecs, { addLog } from "./state/ecs";
 import { Move, Position } from "./state/components";
 
 // init game map and player position
@@ -34,31 +35,117 @@ times(5, () => {
   ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
 });
 
+times(10, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+});
+
 fov(player);
 render(player);
 
 let userInput = null;
 let playerTurn = true;
+export let gameState = "GAME";
+export let selectedInventoryIndex = 0;
 
 document.addEventListener("keydown", (ev) => {
   userInput = ev.key;
 });
 
 const processUserInput = () => {
-  if (userInput === "ArrowUp") {
-    player.add(Move, { x: 0, y: -1 });
-  }
-  if (userInput === "ArrowRight") {
-    player.add(Move, { x: 1, y: 0 });
-  }
-  if (userInput === "ArrowDown") {
-    player.add(Move, { x: 0, y: 1 });
-  }
-  if (userInput === "ArrowLeft") {
-    player.add(Move, { x: -1, y: 0 });
+  if (gameState === "GAME") {
+    if (userInput === "ArrowUp") {
+      player.add(Move, { x: 0, y: -1 });
+    }
+    if (userInput === "ArrowRight") {
+      player.add(Move, { x: 1, y: 0 });
+    }
+    if (userInput === "ArrowDown") {
+      player.add(Move, { x: 0, y: 1 });
+    }
+    if (userInput === "ArrowLeft") {
+      player.add(Move, { x: -1, y: 0 });
+    }
+    if (userInput === "g") {
+      let pickupFound = false;
+      readCacheSet("entitiesAtLocation", toLocId(player.position)).forEach(
+        (eId) => {
+          const entity = ecs.getEntity(eId);
+          if (entity.isPickup) {
+            pickupFound = true;
+            player.fireEvent("pick-up", entity.id);
+            entity.fireEvent("pick-up");
+            addLog(`You pickup a ${entity.description.name}`);
+          }
+        }
+      );
+      if (!pickupFound) {
+        addLog("There is nothing to pick up here");
+      }
+    }
+    if (userInput === "i") {
+      gameState = "INVENTORY";
+    }
+
+    userInput = null;
   }
 
-  userInput = null;
+  if (gameState === "INVENTORY") {
+    if (userInput === "i" || userInput === "Escape") {
+      gameState = "GAME";
+    }
+
+    if (userInput === "ArrowUp") {
+      selectedInventoryIndex -= 1;
+      if (selectedInventoryIndex < 0) selectedInventoryIndex = 0;
+    }
+
+    if (userInput === "ArrowDown") {
+      selectedInventoryIndex += 1;
+      if (selectedInventoryIndex > player.inventory.list.length - 1)
+        selectedInventoryIndex = player.inventory.list.length - 1;
+    }
+
+    if (userInput === "d") {
+      const entity = ecs.getEntity(
+        player.inventory.list[selectedInventoryIndex]
+      );
+      if (entity) {
+        player.fireEvent("drop", {
+          index: selectedInventoryIndex,
+        });
+        entity.fireEvent("drop", {
+          x: player.position.x,
+          y: player.position.y,
+        });
+      }
+    }
+
+    if (userInput === "c") {
+      const entity = ecs.getEntity(
+        player.inventory.list[selectedInventoryIndex]
+      );
+
+      if (entity) {
+        if (entity.has("Effects")) {
+          // clone all effects and add to self
+          entity
+            .get("Effects")
+            .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
+        }
+
+        entity.fireEvent("consume", {
+          index: selectedInventoryIndex,
+        });
+
+        player.fireEvent("remove", {
+          index: selectedInventoryIndex,
+        });
+      }
+    }
+
+    userInput = null;
+  }
 };
 
 const update = () => {
@@ -66,18 +153,28 @@ const update = () => {
     return;
   }
 
-  if (playerTurn && userInput) {
-    console.log("I am @, hear me roar.");
+  if (playerTurn && userInput && gameState === "INVENTORY") {
     processUserInput();
+    effects();
+    render(player);
+    playerTurn = true;
+  }
+
+  if (playerTurn && userInput && gameState === "GAME") {
+    processUserInput();
+    effects();
     movement();
     fov(player);
     render(player);
 
-    playerTurn = false;
+    if (gameState === "GAME") {
+      playerTurn = false;
+    }
   }
 
   if (!playerTurn) {
     ai(player);
+    effects();
     movement();
     fov(player);
     render(player);

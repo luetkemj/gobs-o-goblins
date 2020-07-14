@@ -21,6 +21,35 @@ export const Being = {
   ],
 };
 
+export const Item = {
+  name: "Item",
+  components: [
+    { type: "Appearance" },
+    { type: "Description" },
+    { type: "Layer300" },
+    { type: "IsPickup" },
+  ],
+};
+
+export const HealthPotion = {
+  name: "HealthPotion",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "!", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "health potion" },
+    },
+    {
+      type: "Effects",
+      properties: { component: "health", delta: 5 },
+    },
+  ],
+};
+
 export const Wall = {
   name: "Wall",
   inherit: ["Tile"],
@@ -65,6 +94,8 @@ export const Player = {
       type: "Description",
       properties: { name: "You" },
     },
+    { type: "Health", properties: { current: 20, max: 20 } },
+    { type: "Inventory" },
   ],
 };
 
