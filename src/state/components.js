@@ -51,18 +51,14 @@ export class Inventory extends Component {
 
   onPickUp(evt) {
     this.list.push(evt.data);
-
-    evt.handle();
   }
 
   onDrop(evt) {
     this.list.splice(evt.data.index, 1);
-    evt.handle();
   }
 
   onRemove(evt) {
     this.list.splice(evt.data.index, 1);
-    evt.handle();
   }
 }
 
@@ -82,14 +78,11 @@ export class IsPickup extends Component {
     deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
 
     this.entity.remove("Position");
-    evt.handle();
   }
 
   onDrop(evt) {
     const { x, y } = evt.data;
     this.entity.add("Position", { x, y });
-
-    evt.handle();
   }
 }
 
