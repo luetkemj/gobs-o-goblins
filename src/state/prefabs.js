@@ -1,4 +1,4 @@
-// Primitives
+// Base
 export const Tile = {
   name: "Tile",
   components: [
@@ -31,6 +31,7 @@ export const Item = {
   ],
 };
 
+// Complex
 export const HealthPotion = {
   name: "HealthPotion",
   inherit: ["Item"],
@@ -94,7 +95,6 @@ export const Player = {
       type: "Description",
       properties: { name: "You" },
     },
-    { type: "Health", properties: { current: 20, max: 20 } },
     { type: "Inventory" },
   ],
 };

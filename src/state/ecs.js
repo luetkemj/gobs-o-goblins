@@ -3,7 +3,6 @@ import {
   ActiveEffects,
   Ai,
   Appearance,
-  Consumable,
   Description,
   Defense,
   Effects,
@@ -40,7 +39,6 @@ const ecs = new Engine();
 ecs.registerComponent(ActiveEffects);
 ecs.registerComponent(Ai);
 ecs.registerComponent(Appearance);
-ecs.registerComponent(Consumable);
 ecs.registerComponent(Description);
 ecs.registerComponent(Defense);
 ecs.registerComponent(Effects);
@@ -60,9 +58,9 @@ ecs.registerComponent(Position);
 ecs.registerComponent(Power);
 
 // register "base" prefabs first!
+ecs.registerPrefab(Tile);
 ecs.registerPrefab(Being);
 ecs.registerPrefab(Item);
-ecs.registerPrefab(Tile);
 
 ecs.registerPrefab(HealthPotion);
 ecs.registerPrefab(Wall);

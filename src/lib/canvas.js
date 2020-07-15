@@ -83,14 +83,6 @@ const drawBackground = ({ color, position }) => {
   );
 };
 
-export const drawRect = (x, y, width, height, color) => {
-  const rect = rectangle({ x, y, width, height });
-
-  Object.values(rect.tiles).forEach((position) => {
-    drawBackground({ color, position });
-  });
-};
-
 export const drawCell = (entity, options = {}) => {
   const char = options.char || entity.appearance.char;
   const background = options.background || entity.appearance.background;
@@ -122,6 +114,14 @@ export const drawText = (template) => {
     delete options.y;
 
     drawCell(character, options);
+  });
+};
+
+export const drawRect = (x, y, width, height, color) => {
+  const rect = rectangle({ x, y, width, height });
+
+  Object.values(rect.tiles).forEach((position) => {
+    drawBackground({ color, position });
   });
 };
 

@@ -106,21 +106,6 @@ const processUserInput = () => {
         selectedInventoryIndex = player.inventory.list.length - 1;
     }
 
-    if (userInput === "d") {
-      const entity = ecs.getEntity(
-        player.inventory.list[selectedInventoryIndex]
-      );
-      if (entity) {
-        player.fireEvent("drop", {
-          index: selectedInventoryIndex,
-        });
-        entity.fireEvent("drop", {
-          x: player.position.x,
-          y: player.position.y,
-        });
-      }
-    }
-
     if (userInput === "c") {
       const entity = ecs.getEntity(
         player.inventory.list[selectedInventoryIndex]
@@ -134,14 +119,35 @@ const processUserInput = () => {
             .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
         }
 
-        entity.fireEvent("consume", {
-          index: selectedInventoryIndex,
-        });
+        addLog(`You consume a ${entity.description.name}`);
 
         player.fireEvent("remove", {
           index: selectedInventoryIndex,
         });
+
+        if (selectedInventoryIndex > player.inventory.list.length - 1)
+          selectedInventoryIndex = player.inventory.list.length - 1;
       }
+    }
+
+    if (userInput === "d") {
+      const entity = ecs.getEntity(
+        player.inventory.list[selectedInventoryIndex]
+      );
+      if (entity) {
+        player.fireEvent("remove", {
+          index: selectedInventoryIndex,
+        });
+        entity.fireEvent("drop", {
+          x: player.position.x,
+          y: player.position.y,
+        });
+      }
+
+      addLog(`You drop a ${entity.description.name} on the floor`);
+
+      if (selectedInventoryIndex > player.inventory.list.length - 1)
+        selectedInventoryIndex = player.inventory.list.length - 1;
     }
 
     userInput = null;

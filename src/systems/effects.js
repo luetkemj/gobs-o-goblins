@@ -8,10 +8,12 @@ const activeEffectsEntities = ecs.createQuery({
 export const effects = () => {
   activeEffectsEntities.get().forEach((entity) => {
     entity.activeEffects.forEach((c) => {
-      entity[c.component].current += c.delta;
+      if (entity[c.component]) {
+        entity[c.component].current += c.delta;
 
-      if (entity[c.component].current > entity[c.component].max) {
-        entity[c.component].current = entity[c.component].max;
+        if (entity[c.component].current > entity[c.component].max) {
+          entity[c.component].current = entity[c.component].max;
+        }
       }
 
       c.remove();
