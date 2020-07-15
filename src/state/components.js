@@ -16,23 +16,17 @@ export class Appearance extends Component {
   };
 }
 
-export class Consumable extends Component {
-  onConsume() {
-    this.entity.destroy();
-  }
-}
-
 export class Defense extends Component {
   static properties = { max: 1, current: 1 };
 }
 
 export class Description extends Component {
-  static properties = { name: "noname" };
+  static properties = { name: "No Name" };
 }
 
 export class Effects extends Component {
   static allowMultiple = true;
-  static properties = { component: "", delta: "", active: false };
+  static properties = { component: "", delta: "" };
 }
 
 export class Health extends Component {
@@ -53,10 +47,6 @@ export class Inventory extends Component {
     this.list.push(evt.data);
   }
 
-  onDrop(evt) {
-    this.list.splice(evt.data.index, 1);
-  }
-
   onRemove(evt) {
     this.list.splice(evt.data.index, 1);
   }
@@ -72,8 +62,6 @@ export class IsOpaque extends Component {}
 
 export class IsPickup extends Component {
   onPickUp(evt) {
-    // todo: handle this on a Position component's onBeforeDetached method
-    // https://github.com/ddmills/geotic/issues/15
     const locId = `${this.entity.position.x},${this.entity.position.y}`;
     deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
 
