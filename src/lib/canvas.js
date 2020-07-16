@@ -125,8 +125,15 @@ export const drawRect = (x, y, width, height, color) => {
   });
 };
 
-export const clearCanvas = () =>
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+export const clearCanvas = (x, y, w, h) => {
+  const posX = x * cellWidth + cellWidth / 2;
+  const posY = y * cellHeight + cellHeight / 2;
+
+  const width = cellWidth * w;
+  const height = cellHeight * h;
+
+  ctx.clearRect(posX, posY, width, height);
+};
 
 export const pxToCell = (ev) => {
   const bounds = canvas.getBoundingClientRect();
