@@ -212,6 +212,28 @@ const renderInfoBar = (mPos) => {
   }
 };
 
+const renderTargeting = (mPos) => {
+  const { x, y } = mPos;
+  const locId = toLocId({ x, y });
+
+  const esAtLoc = readCacheSet("entitiesAtLocation", locId) || [];
+  const entitiesAtLoc = [...esAtLoc];
+
+  clearInfoBar();
+
+  if (entitiesAtLoc) {
+    if (some(entitiesAtLoc, (eId) => ecs.getEntity(eId).isRevealed)) {
+      drawCell({
+        appearance: {
+          char: "",
+          background: "rgba(74, 232, 218, 0.51)",
+        },
+        position: { x, y },
+      });
+    }
+  }
+};
+
 const renderInventory = (player) => {
   clearInfoBar();
   // translucent to obscure the game map
@@ -273,5 +295,11 @@ canvas.onmousemove = throttle((e) => {
     const [x, y] = pxToCell(e);
     renderMap();
     renderInfoBar({ x, y });
+  }
+
+  if (gameState === "TARGETING") {
+    const [x, y] = pxToCell(e);
+    renderMap();
+    renderTargeting({ x, y });
   }
 }, 50);

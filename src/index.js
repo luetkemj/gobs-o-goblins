@@ -45,7 +45,7 @@ render(player);
 
 let userInput = null;
 let playerTurn = true;
-export let gameState = "GAME";
+export let gameState = "GAME"; // GAME INVENTORY TARGETING
 export let selectedInventoryIndex = 0;
 
 document.addEventListener("keydown", (ev) => {
@@ -87,7 +87,17 @@ const processUserInput = () => {
       gameState = "INVENTORY";
     }
 
+    if (userInput === "z") {
+      gameState = "TARGETING";
+    }
+
     userInput = null;
+  }
+
+  if (gameState === "TARGETING") {
+    if (userInput === "z" || userInput === "Escape") {
+      gameState = "GAME";
+    }
   }
 
   if (gameState === "INVENTORY") {
