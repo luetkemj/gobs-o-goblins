@@ -90,6 +90,7 @@ const processUserInput = () => {
     }
     if (userInput === "i") {
       gameState = "INVENTORY";
+      selectedInventoryIndex = 0;
     }
 
     if (userInput === "z") {
@@ -127,21 +128,25 @@ const processUserInput = () => {
       );
 
       if (entity) {
-        if (entity.has("Effects")) {
-          // clone all effects and add to self
-          entity
-            .get("Effects")
-            .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
+        if (entity.isConsumable) {
+          if (entity.has("Effects")) {
+            // clone all effects and add to self
+            entity
+              .get("Effects")
+              .forEach((x) =>
+                player.add("ActiveEffects", { ...x.serialize() })
+              );
+          }
+
+          addLog(`You consume a ${entity.description.name}`);
+
+          player.fireEvent("remove", {
+            index: selectedInventoryIndex,
+          });
+
+          if (selectedInventoryIndex > player.inventory.list.length - 1)
+            selectedInventoryIndex = player.inventory.list.length - 1;
         }
-
-        addLog(`You consume a ${entity.description.name}`);
-
-        player.fireEvent("remove", {
-          index: selectedInventoryIndex,
-        });
-
-        if (selectedInventoryIndex > player.inventory.list.length - 1)
-          selectedInventoryIndex = player.inventory.list.length - 1;
       }
     }
 

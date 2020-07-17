@@ -48,6 +48,7 @@ export const HealthPotion = {
       type: "Effects",
       properties: { component: "health", delta: 5 },
     },
+    { type: "IsConsumable" },
   ],
 };
 

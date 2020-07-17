@@ -54,6 +54,8 @@ export class Inventory extends Component {
 
 export class IsBlocking extends Component {}
 
+export class IsConsumable extends Component {}
+
 export class IsDead extends Component {}
 
 export class IsInFov extends Component {}

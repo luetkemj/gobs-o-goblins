@@ -9,6 +9,7 @@ import {
   Health,
   Inventory,
   IsBlocking,
+  IsConsumable,
   IsDead,
   IsInFov,
   IsOpaque,
@@ -46,6 +47,7 @@ ecs.registerComponent(Effects);
 ecs.registerComponent(Health);
 ecs.registerComponent(Inventory);
 ecs.registerComponent(IsBlocking);
+ecs.registerComponent(IsConsumable);
 ecs.registerComponent(IsDead);
 ecs.registerComponent(IsInFov);
 ecs.registerComponent(IsOpaque);
