@@ -29,6 +29,7 @@ import {
   HealthPotion,
   Goblin,
   Player,
+  ScrollLightning,
   Wall,
   Floor,
 } from "./prefabs";
@@ -63,6 +64,7 @@ ecs.registerPrefab(Being);
 ecs.registerPrefab(Item);
 
 ecs.registerPrefab(HealthPotion);
+ecs.registerPrefab(ScrollLightning);
 ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);

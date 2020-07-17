@@ -40,6 +40,11 @@ times(10, () => {
   ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
 });
 
+times(10, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
+});
+
 fov(player);
 render(player);
 

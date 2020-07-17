@@ -51,6 +51,25 @@ export const HealthPotion = {
   ],
 };
 
+export const ScrollLightning = {
+  name: "ScrollLightning",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "♪", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "scroll of lightning" },
+    },
+    {
+      type: "Effects",
+      properties: { component: "health", delta: -15 },
+    },
+  ],
+};
+
 export const Wall = {
   name: "Wall",
   inherit: ["Tile"],
