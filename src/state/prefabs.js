@@ -68,6 +68,7 @@ export const ScrollLightning = {
       type: "Effects",
       properties: { component: "health", delta: -15 },
     },
+    { type: "RequiresTarget" },
   ],
 };
 

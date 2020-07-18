@@ -249,19 +249,8 @@ const renderInventory = (player) => {
     y: grid.inventory.y,
   });
 
-  const selectedItem =
-    player.inventory.list.length &&
-    ecs.getEntity(player.inventory.list[selectedInventoryIndex]);
-
-  let keyBindings = "(d)Drop";
-  if (selectedItem) {
-    if (selectedItem.isConsumable) {
-      keyBindings = `(c)Consume ${keyBindings}`;
-    }
-  }
-
   drawText({
-    text: keyBindings,
+    text: "(u)Use (d)Drop",
     background: "black",
     color: "#666",
     x: grid.inventory.x,

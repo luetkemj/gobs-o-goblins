@@ -10,6 +10,7 @@ import { fov } from "./systems/fov";
 import { kill } from "./systems/kill";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
+import { targeting } from "./systems/targeting";
 import ecs, { addLog } from "./state/ecs";
 import { Move, Position } from "./state/components";
 
@@ -123,12 +124,19 @@ const processUserInput = () => {
         selectedInventoryIndex = player.inventory.list.length - 1;
     }
 
-    if (userInput === "c") {
+    if (userInput === "u") {
       const entity = ecs.getEntity(
         player.inventory.list[selectedInventoryIndex]
       );
 
-      if (entity) {
+      if (!entity) return;
+
+      if (entity.requiresTarget) {
+        player.add("TargetingItem", {
+          eId: player.inventory.list[selectedInventoryIndex],
+        });
+        gameState = "TARGETING";
+      } else {
         if (entity.isConsumable) {
           if (entity.has("Effects")) {
             // clone all effects and add to self
@@ -139,7 +147,7 @@ const processUserInput = () => {
               );
           }
 
-          addLog(`You consume a ${entity.description.name}`);
+          addLog(`You use a ${entity.description.name}`);
 
           player.fireEvent("remove", {
             index: selectedInventoryIndex,
@@ -201,10 +209,15 @@ const update = () => {
   }
 
   if (!playerTurn) {
-    ai(player);
+    targeting();
     effects();
-    movement();
     kill();
+
+    ai(player);
+    movement();
+    effects();
+    kill();
+
     fov(player);
     render(player);
 
@@ -220,13 +233,19 @@ const gameLoop = () => {
 requestAnimationFrame(gameLoop);
 
 // Only do this during development
-if (process.env.NODE_ENV === "development") {
-  const canvas = document.querySelector("#canvas");
+const canvas = document.querySelector("#canvas");
 
-  canvas.onclick = (e) => {
-    const [x, y] = pxToCell(e);
-    const locId = toLocId({ x, y });
+canvas.onclick = (e) => {
+  const [x, y] = pxToCell(e);
+  const locId = toLocId({ x, y });
 
+  if (gameState === "TARGETING") {
+    player.add("Target", { locId });
+    gameState = "GAME";
+    playerTurn = false;
+  }
+
+  if (process.env.NODE_ENV === "development") {
     readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
       const entity = ecs.getEntity(eId);
 
@@ -239,5 +258,5 @@ if (process.env.NODE_ENV === "development") {
         entity.serialize()
       );
     });
-  };
-}
+  }
+};

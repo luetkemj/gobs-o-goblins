@@ -100,3 +100,13 @@ export class Position extends Component {
 export class Power extends Component {
   static properties = { max: 5, current: 5 };
 }
+
+export class RequiresTarget extends Component {}
+
+export class Target extends Component {
+  static properties = { locId: "" };
+}
+
+export class TargetingItem extends Component {
+  static properties = { eId: "" };
+}

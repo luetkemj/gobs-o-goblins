@@ -21,6 +21,9 @@ import {
   Move,
   Position,
   Power,
+  RequiresTarget,
+  Target,
+  TargetingItem,
 } from "./components";
 
 import {
@@ -59,6 +62,9 @@ ecs.registerComponent(Layer400);
 ecs.registerComponent(Move);
 ecs.registerComponent(Position);
 ecs.registerComponent(Power);
+ecs.registerComponent(RequiresTarget);
+ecs.registerComponent(Target);
+ecs.registerComponent(TargetingItem);
 
 // register "base" prefabs first!
 ecs.registerPrefab(Tile);
