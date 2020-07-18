@@ -7,6 +7,7 @@ import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
+import { kill } from "./systems/kill";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import ecs, { addLog } from "./state/ecs";
@@ -190,6 +191,7 @@ const update = () => {
     processUserInput();
     effects();
     movement();
+    kill();
     fov(player);
     render(player);
 
@@ -202,6 +204,7 @@ const update = () => {
     ai(player);
     effects();
     movement();
+    kill();
     fov(player);
     render(player);
 

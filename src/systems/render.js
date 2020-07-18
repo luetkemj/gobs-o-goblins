@@ -96,16 +96,18 @@ const renderPlayerHud = (player) => {
     y: grid.playerHud.y + 1,
   });
 
-  const hp = player.health.current / player.health.max;
+  if (player.health) {
+    const hp = player.health.current / player.health.max;
 
-  if (hp > 0) {
-    drawText({
-      text: "♥".repeat(hp * grid.playerHud.width),
-      background: "black",
-      color: "red",
-      x: grid.playerHud.x,
-      y: grid.playerHud.y + 1,
-    });
+    if (hp > 0) {
+      drawText({
+        text: "♥".repeat(hp * grid.playerHud.width),
+        background: "black",
+        color: "red",
+        x: grid.playerHud.x,
+        y: grid.playerHud.y + 1,
+      });
+    }
   }
 };
 
