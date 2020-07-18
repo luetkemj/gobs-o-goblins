@@ -173,8 +173,7 @@ const renderInfoBar = (mPos) => {
       drawCell({
         appearance: {
           char: "",
-          // background: "rgba(74, 232, 218, 0.51)",
-          background: "rgba(255, 255, 255, 0.51)",
+          background: "rgba(255, 255, 255, 0.5)",
         },
         position: { x, y },
       });
@@ -228,7 +227,7 @@ const renderTargeting = (mPos) => {
       drawCell({
         appearance: {
           char: "",
-          background: "rgba(74, 232, 218, 0.51)",
+          background: "rgba(74, 232, 218, 0.5)",
         },
         position: { x, y },
       });

@@ -126,8 +126,8 @@ export const drawRect = (x, y, width, height, color) => {
 };
 
 export const clearCanvas = (x, y, w, h) => {
-  const posX = x * cellWidth + cellWidth / 2;
-  const posY = y * cellHeight + cellHeight / 2;
+  const posX = x * cellWidth;
+  const posY = y * cellHeight;
 
   const width = cellWidth * w;
   const height = cellHeight * h;
