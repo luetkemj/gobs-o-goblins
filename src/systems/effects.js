@@ -16,6 +16,8 @@ export const effects = () => {
         }
       }
 
+      entity.add("Animate", { ...c.animate });
+
       c.remove();
     });
   });

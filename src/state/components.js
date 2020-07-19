@@ -3,10 +3,29 @@ import { addCacheSet, deleteCacheSet } from "./cache";
 
 export class ActiveEffects extends Component {
   static allowMultiple = true;
-  static properties = { component: "", delta: "" };
+  static properties = {
+    component: "",
+    delta: "",
+    animate: { char: "", color: "" },
+  };
 }
 
 export class Ai extends Component {}
+
+export class Animate extends Component {
+  static allowMultiple = true;
+  static properties = {
+    startTime: null,
+    duration: 250,
+    char: "",
+    color: "",
+  };
+
+  onSetStartTime(evt) {
+    this.startTime = evt.data.time;
+    evt.handle();
+  }
+}
 
 export class Appearance extends Component {
   static properties = {
@@ -26,7 +45,11 @@ export class Description extends Component {
 
 export class Effects extends Component {
   static allowMultiple = true;
-  static properties = { component: "", delta: "" };
+  static properties = {
+    component: "",
+    delta: "",
+    animate: { char: "", color: "" },
+  };
 }
 
 export class Health extends Component {

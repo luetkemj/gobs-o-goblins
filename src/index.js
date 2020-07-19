@@ -5,6 +5,7 @@ import { toLocId } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
+import { animation } from "./systems/animation";
 import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
 import { kill } from "./systems/kill";
@@ -184,6 +185,8 @@ const processUserInput = () => {
 };
 
 const update = () => {
+  animation();
+
   if (player.isDead) {
     return;
   }
@@ -220,7 +223,6 @@ const update = () => {
 
     fov(player);
     render(player);
-
     playerTurn = true;
   }
 };

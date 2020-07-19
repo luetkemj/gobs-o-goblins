@@ -2,6 +2,7 @@ import { Engine } from "geotic";
 import {
   ActiveEffects,
   Ai,
+  Animate,
   Appearance,
   Description,
   Defense,
@@ -42,6 +43,7 @@ const ecs = new Engine();
 
 // all Components must be `registered` by the engine
 ecs.registerComponent(ActiveEffects);
+ecs.registerComponent(Animate);
 ecs.registerComponent(Ai);
 ecs.registerComponent(Appearance);
 ecs.registerComponent(Description);

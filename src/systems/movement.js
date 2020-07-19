@@ -12,6 +12,8 @@ const attack = (entity, target) => {
   const damage = entity.power.current - target.defense.current;
   target.fireEvent("take-damage", { amount: damage });
 
+  target.add("Animate", { color: "#ff0000" });
+
   if (target.health.current <= 0) {
     return addLog(
       `${entity.description.name} kicked a ${target.description.name} for ${damage} damage and killed it!`
