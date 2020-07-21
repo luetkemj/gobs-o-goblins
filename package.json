@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "geotic": "3.3.0",
-    "lodash": "4.17.15",
+    "lodash": "4.17.19",
     "pathfinding": "0.4.18"
   }
 }
