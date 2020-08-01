@@ -34,6 +34,11 @@ times(5, () => {
   ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
 });
 
+times(50, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+});
+
 fov(player);
 render(player);
 

@@ -21,6 +21,31 @@ export const Being = {
   ],
 };
 
+export const Item = {
+  name: "Item",
+  components: [
+    { type: "Appearance" },
+    { type: "Description" },
+    { type: "Layer300" },
+    { type: "IsPickup" },
+  ],
+};
+
+export const HealthPotion = {
+  name: "HealthPotion",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "!", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "health potion" },
+    },
+  ],
+};
+
 export const Wall = {
   name: "Wall",
   inherit: ["Tile"],
