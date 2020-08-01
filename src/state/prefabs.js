@@ -69,7 +69,7 @@ export const ScrollLightning = {
       properties: {
         component: "health",
         delta: -15,
-        animate: { color: "#ff0000", char: "⦚" },
+        animate: { color: "#F7FF00" },
       },
     },
     { type: "RequiresTarget" },
