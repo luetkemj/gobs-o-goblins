@@ -136,8 +136,7 @@ export const render = (player) => {
     });
 
     if (player.inventory.list.length) {
-      player.inventory.list.forEach((eId, idx) => {
-        const entity = ecs.getEntity(eId);
+      player.inventory.list.forEach((entity, idx) => {
         drawText({
           text: `${idx === selectedInventoryIndex ? "*" : " "}${
             entity.description.name

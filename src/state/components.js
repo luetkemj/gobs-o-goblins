@@ -1,3 +1,4 @@
+import { remove } from "lodash";
 import { Component } from "geotic";
 import { addCacheSet, deleteCacheSet } from "./cache";
 
@@ -40,15 +41,20 @@ export class Health extends Component {
 
 export class Inventory extends Component {
   static properties = {
-    list: [],
+    list: "<EntityArray>",
   };
 
   onPickUp(evt) {
     this.list.push(evt.data);
+
+    if (evt.data.position) {
+      evt.data.remove("Position");
+    }
   }
 
-  onRemove(evt) {
-    this.list.splice(evt.data.index, 1);
+  onDrop(evt) {
+    remove(this.list, (x) => x.id === evt.data.id);
+    evt.data.add("Position", this.entity.position);
   }
 }
 
@@ -60,19 +66,7 @@ export class IsInFov extends Component {}
 
 export class IsOpaque extends Component {}
 
-export class IsPickup extends Component {
-  onPickUp(evt) {
-    const locId = `${this.entity.position.x},${this.entity.position.y}`;
-    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
-
-    this.entity.remove("Position");
-  }
-
-  onDrop(evt) {
-    const { x, y } = evt.data;
-    this.entity.add("Position", { x, y });
-  }
-}
+export class IsPickup extends Component {}
 
 export class IsRevealed extends Component {}
 
@@ -92,6 +86,11 @@ export class Position extends Component {
   onAttached() {
     const locId = `${this.entity.position.x},${this.entity.position.y}`;
     addCacheSet("entitiesAtLocation", locId, this.entity.id);
+  }
+
+  onDetached() {
+    const locId = `${this.x},${this.y}`;
+    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
   }
 }
 
