@@ -22,7 +22,7 @@ export class Defense extends Component {
 }
 
 export class Description extends Component {
-  static properties = { name: "noname" };
+  static properties = { name: "No Name" };
 }
 
 export class Effects extends Component {

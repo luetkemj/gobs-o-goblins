@@ -35,7 +35,7 @@ times(5, () => {
   ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
 });
 
-times(50, () => {
+times(10, () => {
   const tile = sample(openTiles);
   ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
 });
@@ -66,7 +66,6 @@ const processUserInput = () => {
     if (userInput === "ArrowLeft") {
       player.add(Move, { x: -1, y: 0 });
     }
-
     if (userInput === "g") {
       let pickupFound = false;
       readCacheSet("entitiesAtLocation", toLocId(player.position)).forEach(
@@ -83,7 +82,6 @@ const processUserInput = () => {
         addLog("There is nothing to pick up here");
       }
     }
-
     if (userInput === "i") {
       gameState = "INVENTORY";
     }

@@ -1,7 +1,6 @@
 import { random, times } from "lodash";
 import ecs from "../state/ecs";
 import { rectangle, rectsIntersect } from "./grid";
-
 import { Position } from "../state/components";
 
 function digHorizontalPassage(x1, x2, y) {
