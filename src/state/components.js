@@ -2,6 +2,11 @@ import { remove } from "lodash";
 import { Component } from "geotic";
 import { addCacheSet, deleteCacheSet } from "./cache";
 
+export class ActiveEffects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "" };
+}
+
 export class Ai extends Component {}
 
 export class Appearance extends Component {
@@ -18,6 +23,11 @@ export class Defense extends Component {
 
 export class Description extends Component {
   static properties = { name: "noname" };
+}
+
+export class Effects extends Component {
+  static allowMultiple = true;
+  static properties = { component: "", delta: "" };
 }
 
 export class Health extends Component {

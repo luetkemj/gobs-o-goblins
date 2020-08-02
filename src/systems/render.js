@@ -127,6 +127,14 @@ export const render = (player) => {
       y: grid.inventory.y,
     });
 
+    drawText({
+      text: "(c)Consume (d)Drop",
+      background: "black",
+      color: "#666",
+      x: grid.inventory.x,
+      y: grid.inventory.y + 1,
+    });
+
     if (player.inventory.list.length) {
       player.inventory.list.forEach((entity, idx) => {
         drawText({

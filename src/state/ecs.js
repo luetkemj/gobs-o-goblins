@@ -1,9 +1,11 @@
 import { Engine } from "geotic";
 import {
+  ActiveEffects,
   Ai,
   Appearance,
   Description,
   Defense,
+  Effects,
   Health,
   Inventory,
   IsBlocking,
@@ -34,10 +36,12 @@ import {
 const ecs = new Engine();
 
 // all Components must be `registered` by the engine
+ecs.registerComponent(ActiveEffects);
 ecs.registerComponent(Ai);
 ecs.registerComponent(Appearance);
 ecs.registerComponent(Description);
 ecs.registerComponent(Defense);
+ecs.registerComponent(Effects);
 ecs.registerComponent(Health);
 ecs.registerComponent(Inventory);
 ecs.registerComponent(IsBlocking);

@@ -5,6 +5,7 @@ import { toLocId } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
+import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
@@ -83,12 +84,6 @@ const processUserInput = () => {
       }
     }
 
-    if (userInput === "d") {
-      if (player.inventory.list.length) {
-        addLog(`You drop a ${player.inventory.list[0].description.name}`);
-        player.fireEvent("drop", player.inventory.list[0]);
-      }
-    }
     if (userInput === "i") {
       gameState = "INVENTORY";
     }
@@ -112,6 +107,32 @@ const processUserInput = () => {
         selectedInventoryIndex = player.inventory.list.length - 1;
     }
 
+    if (userInput === "d") {
+      if (player.inventory.list.length) {
+        addLog(`You drop a ${player.inventory.list[0].description.name}`);
+        player.fireEvent("drop", player.inventory.list[0]);
+      }
+    }
+
+    if (userInput === "c") {
+      const entity = player.inventory.list[selectedInventoryIndex];
+
+      if (entity) {
+        if (entity.has("Effects")) {
+          // clone all effects and add to self
+          entity
+            .get("Effects")
+            .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
+        }
+
+        addLog(`You consume a ${entity.description.name}`);
+        entity.destroy();
+
+        if (selectedInventoryIndex > player.inventory.list.length - 1)
+          selectedInventoryIndex = player.inventory.list.length - 1;
+      }
+    }
+
     userInput = null;
   }
 };
@@ -123,12 +144,14 @@ const update = () => {
 
   if (playerTurn && userInput && gameState === "INVENTORY") {
     processUserInput();
+    effects();
     render(player);
     playerTurn = true;
   }
 
   if (playerTurn && userInput && gameState === "GAME") {
     processUserInput();
+    effects();
     movement();
     fov(player);
     render(player);
@@ -140,6 +163,7 @@ const update = () => {
 
   if (!playerTurn) {
     ai(player);
+    effects();
     movement();
     fov(player);
     render(player);

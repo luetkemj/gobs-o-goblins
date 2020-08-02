@@ -43,6 +43,10 @@ export const HealthPotion = {
       type: "Description",
       properties: { name: "health potion" },
     },
+    {
+      type: "Effects",
+      properties: { component: "health", delta: 5 },
+    },
   ],
 };
 
