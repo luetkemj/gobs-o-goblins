@@ -1,5 +1,6 @@
+import { remove } from "lodash";
 import { Component } from "geotic";
-import { addCacheSet } from "./cache";
+import { addCacheSet, deleteCacheSet } from "./cache";
 
 export class Ai extends Component {}
 
@@ -25,6 +26,25 @@ export class Health extends Component {
   onTakeDamage(evt) {
     this.current -= evt.data.amount;
     evt.handle();
+  }
+}
+
+export class Inventory extends Component {
+  static properties = {
+    list: "<EntityArray>",
+  };
+
+  onPickUp(evt) {
+    this.list.push(evt.data);
+
+    if (evt.data.position) {
+      evt.data.remove("Position");
+    }
+  }
+
+  onDrop(evt) {
+    remove(this.list, (x) => x.id === evt.data.id);
+    evt.data.add("Position", this.entity.position);
   }
 }
 
@@ -56,6 +76,11 @@ export class Position extends Component {
   onAttached() {
     const locId = `${this.entity.position.x},${this.entity.position.y}`;
     addCacheSet("entitiesAtLocation", locId, this.entity.id);
+  }
+
+  onDetached() {
+    const locId = `${this.x},${this.y}`;
+    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
   }
 }
 

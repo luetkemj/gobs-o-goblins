@@ -74,15 +74,8 @@ export const movement = () => {
       return;
     }
 
-    deleteCacheSet(
-      "entitiesAtLocation",
-      `${entity.position.x},${entity.position.y}`,
-      entity.id
-    );
-    addCacheSet("entitiesAtLocation", `${mx},${my}`, entity.id);
-
-    entity.position.x = mx;
-    entity.position.y = my;
+    entity.remove("Position");
+    entity.add("Position", { x: mx, y: my });
 
     entity.remove(Move);
   });

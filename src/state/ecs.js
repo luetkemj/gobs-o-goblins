@@ -5,6 +5,7 @@ import {
   Description,
   Defense,
   Health,
+  Inventory,
   IsBlocking,
   IsDead,
   IsInFov,
@@ -38,6 +39,7 @@ ecs.registerComponent(Appearance);
 ecs.registerComponent(Description);
 ecs.registerComponent(Defense);
 ecs.registerComponent(Health);
+ecs.registerComponent(Inventory);
 ecs.registerComponent(IsBlocking);
 ecs.registerComponent(IsDead);
 ecs.registerComponent(IsInFov);
