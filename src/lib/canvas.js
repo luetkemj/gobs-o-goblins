@@ -1,3 +1,5 @@
+import { rectangle } from "./grid";
+
 const pixelRatio = window.devicePixelRatio || 1;
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
@@ -32,6 +34,13 @@ export const grid = {
     height: 3,
     x: 21,
     y: 32,
+  },
+
+  inventory: {
+    width: 37,
+    height: 28,
+    x: 21,
+    y: 4,
   },
 };
 
@@ -105,6 +114,14 @@ export const drawText = (template) => {
     delete options.y;
 
     drawCell(character, options);
+  });
+};
+
+export const drawRect = (x, y, width, height, color) => {
+  const rect = rectangle({ x, y, width, height });
+
+  Object.values(rect.tiles).forEach((position) => {
+    drawBackground({ color, position });
   });
 };
 
