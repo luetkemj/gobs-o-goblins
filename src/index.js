@@ -5,12 +5,16 @@ import { toLocId } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
+import { animation } from "./systems/animation";
 import { effects } from "./systems/effects";
 import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
+import { targeting } from "./systems/targeting";
 import ecs, { addLog } from "./state/ecs";
-import { Move, Position } from "./state/components";
+import { IsInFov, Move, Position, Ai } from "./state/components";
+
+const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
 // init game map and player position
 const dungeon = createDungeon({
@@ -38,6 +42,11 @@ times(5, () => {
 times(10, () => {
   const tile = sample(openTiles);
   ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+});
+
+times(10, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
 });
 
 fov(player);
@@ -86,6 +95,18 @@ const processUserInput = () => {
       gameState = "INVENTORY";
     }
 
+    if (userInput === "z") {
+      gameState = "TARGETING";
+    }
+
+    userInput = null;
+  }
+
+  if (gameState === "TARGETING") {
+    if (userInput === "z" || userInput === "Escape") {
+      gameState = "GAME";
+    }
+
     userInput = null;
   }
 
@@ -116,18 +137,31 @@ const processUserInput = () => {
       const entity = player.inventory.list[selectedInventoryIndex];
 
       if (entity) {
-        if (entity.has("Effects")) {
+        if (entity.requiresTarget) {
+          // get a target that is NOT the player
+          const target = sample([...enemiesInFOV.get()]);
+
+          if (target) {
+            player.add("TargetingItem", { item: entity });
+            player.add("Target", { locId: toLocId(target.position) });
+          } else {
+            addLog(`The scroll disintegrates uselessly in your hand`);
+            entity.destroy();
+          }
+        } else if (entity.has("Effects")) {
           // clone all effects and add to self
           entity
             .get("Effects")
             .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
-        }
 
-        addLog(`You consume a ${entity.description.name}`);
-        entity.destroy();
+          addLog(`You consume a ${entity.description.name}`);
+          entity.destroy();
+        }
 
         if (selectedInventoryIndex > player.inventory.list.length - 1)
           selectedInventoryIndex = player.inventory.list.length - 1;
+
+        gameState = "GAME";
       }
     }
 
@@ -136,12 +170,21 @@ const processUserInput = () => {
 };
 
 const update = () => {
+  animation();
+
   if (player.isDead) {
     return;
   }
 
+  if (playerTurn && userInput && gameState === "TARGETING") {
+    processUserInput();
+    render(player);
+    playerTurn = true;
+  }
+
   if (playerTurn && userInput && gameState === "INVENTORY") {
     processUserInput();
+    targeting();
     effects();
     render(player);
     playerTurn = true;

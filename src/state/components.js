@@ -4,10 +4,30 @@ import { addCacheSet, deleteCacheSet } from "./cache";
 
 export class ActiveEffects extends Component {
   static allowMultiple = true;
-  static properties = { component: "", delta: "" };
+  static properties = {
+    component: "",
+    delta: "",
+    animate: { char: "", color: "" },
+    events: [], // { name: "", args: {} },
+  };
 }
 
 export class Ai extends Component {}
+
+export class Animate extends Component {
+  static allowMultiple = true;
+  static properties = {
+    startTime: null,
+    duration: 250,
+    char: "",
+    color: "",
+  };
+
+  onSetStartTime(evt) {
+    this.startTime = evt.data.time;
+    evt.handle();
+  }
+}
 
 export class Appearance extends Component {
   static properties = {
@@ -27,7 +47,12 @@ export class Description extends Component {
 
 export class Effects extends Component {
   static allowMultiple = true;
-  static properties = { component: "", delta: "" };
+  static properties = {
+    component: "",
+    delta: "",
+    animate: { char: "", color: "" },
+    events: [], // { name: "", args: {} },
+  };
 }
 
 export class Health extends Component {
@@ -35,6 +60,16 @@ export class Health extends Component {
 
   onTakeDamage(evt) {
     this.current -= evt.data.amount;
+
+    if (this.current <= 0) {
+      this.entity.appearance.char = "%";
+      this.entity.remove("Ai");
+      this.entity.remove("IsBlocking");
+      this.entity.add("IsDead");
+      this.entity.remove("Layer400");
+      this.entity.add("Layer300");
+    }
+
     evt.handle();
   }
 }
@@ -96,4 +131,18 @@ export class Position extends Component {
 
 export class Power extends Component {
   static properties = { max: 5, current: 5 };
+}
+
+export class RequiresTarget extends Component {
+  static properties = {
+    acquired: "RANDOM",
+  };
+}
+
+export class Target extends Component {
+  static properties = { locId: "" };
+}
+
+export class TargetingItem extends Component {
+  static properties = { item: "<Entity>" };
 }

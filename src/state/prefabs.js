@@ -46,8 +46,40 @@ export const HealthPotion = {
     },
     {
       type: "Effects",
-      properties: { component: "health", delta: 5 },
+      properties: {
+        component: "health",
+        delta: 5,
+        animate: { color: "#ff0000", char: "♥" },
+      },
     },
+  ],
+};
+
+export const ScrollLightning = {
+  name: "ScrollLightning",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "♪", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "scroll of lightning" },
+    },
+    {
+      type: "Effects",
+      properties: {
+        animate: { color: "#F7FF00" },
+        events: [
+          {
+            name: "take-damage",
+            args: { amount: 25 },
+          },
+        ],
+      },
+    },
+    { type: "RequiresTarget", properties: { acquired: "RANDOM" } },
   ],
 };
 

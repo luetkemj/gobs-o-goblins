@@ -12,8 +12,6 @@ const attack = (entity, target) => {
   target.fireEvent("take-damage", { amount: damage });
 
   if (target.health.current <= 0) {
-    kill(target);
-
     return addLog(
       `${entity.description.name} kicked a ${target.description.name} for ${damage} damage and killed it!`
     );
@@ -22,15 +20,6 @@ const attack = (entity, target) => {
   addLog(
     `${entity.description.name} kicked a ${target.description.name} for ${damage} damage!`
   );
-};
-
-const kill = (entity) => {
-  entity.appearance.char = "%";
-  entity.remove("Ai");
-  entity.remove("IsBlocking");
-  entity.add("IsDead");
-  entity.remove("Layer400");
-  entity.add("Layer300");
 };
 
 export const movement = () => {

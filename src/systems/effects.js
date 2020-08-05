@@ -16,6 +16,12 @@ export const effects = () => {
         }
       }
 
+      if (c.events.length) {
+        c.events.forEach((event) => entity.fireEvent(event.name, event.args));
+      }
+
+      entity.add("Animate", { ...c.animate });
+
       c.remove();
     });
   });

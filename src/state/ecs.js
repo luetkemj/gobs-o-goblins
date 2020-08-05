@@ -2,6 +2,7 @@ import { Engine } from "geotic";
 import {
   ActiveEffects,
   Ai,
+  Animate,
   Appearance,
   Description,
   Defense,
@@ -20,6 +21,9 @@ import {
   Move,
   Position,
   Power,
+  RequiresTarget,
+  Target,
+  TargetingItem,
 } from "./components";
 
 import {
@@ -27,6 +31,7 @@ import {
   Item,
   Tile,
   HealthPotion,
+  ScrollLightning,
   Goblin,
   Player,
   Wall,
@@ -37,6 +42,7 @@ const ecs = new Engine();
 
 // all Components must be `registered` by the engine
 ecs.registerComponent(ActiveEffects);
+ecs.registerComponent(Animate);
 ecs.registerComponent(Ai);
 ecs.registerComponent(Appearance);
 ecs.registerComponent(Description);
@@ -56,6 +62,9 @@ ecs.registerComponent(Layer400);
 ecs.registerComponent(Move);
 ecs.registerComponent(Position);
 ecs.registerComponent(Power);
+ecs.registerComponent(RequiresTarget);
+ecs.registerComponent(Target);
+ecs.registerComponent(TargetingItem);
 
 // register "base" prefabs first!
 ecs.registerPrefab(Tile);
@@ -67,6 +76,7 @@ ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
+ecs.registerPrefab(ScrollLightning);
 
 export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {
