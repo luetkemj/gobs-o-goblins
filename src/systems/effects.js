@@ -8,6 +8,7 @@ const activeEffectsEntities = ecs.createQuery({
 export const effects = () => {
   activeEffectsEntities.get().forEach((entity) => {
     entity.activeEffects.forEach((c) => {
+      // handle component deltas
       if (entity[c.component]) {
         entity[c.component].current += c.delta;
 
@@ -16,13 +17,36 @@ export const effects = () => {
         }
       }
 
+      // fire events
       if (c.events.length) {
         c.events.forEach((event) => entity.fireEvent(event.name, event.args));
       }
 
+      // handle addComponents
+      if (c.addComponents.length) {
+        c.addComponents.forEach((component) => {
+          if (!entity.has(component.name)) {
+            entity.add(component.name, component.properties);
+          }
+        });
+      }
+
       entity.add("Animate", { ...c.animate });
 
-      c.remove();
+      // cleanup
+      if (!c.duration) {
+        c.remove();
+
+        if (c.addComponents.length) {
+          c.addComponents.forEach((component) => {
+            if (entity.has(component.name)) {
+              entity.remove(component.name, component.properties);
+            }
+          });
+        }
+      } else {
+        c.duration -= 1;
+      }
     });
   });
 };

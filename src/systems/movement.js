@@ -24,6 +24,10 @@ const attack = (entity, target) => {
 
 export const movement = () => {
   movableEntities.get().forEach((entity) => {
+    if (entity.has("Paralyzed")) {
+      return entity.remove(Move);
+    }
+
     let mx = entity.move.x;
     let my = entity.move.y;
 

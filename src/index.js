@@ -49,6 +49,11 @@ times(10, () => {
   ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
 });
 
+times(10, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+});
+
 fov(player);
 render(player);
 
@@ -95,15 +100,12 @@ const processUserInput = () => {
       gameState = "INVENTORY";
     }
 
-    if (userInput === "z") {
-      gameState = "TARGETING";
-    }
-
     userInput = null;
   }
 
   if (gameState === "TARGETING") {
-    if (userInput === "z" || userInput === "Escape") {
+    if (userInput === "Escape") {
+      player.remove("TargetingItem");
       gameState = "GAME";
     }
 
@@ -138,15 +140,23 @@ const processUserInput = () => {
 
       if (entity) {
         if (entity.requiresTarget) {
-          // get a target that is NOT the player
-          const target = sample([...enemiesInFOV.get()]);
+          if (entity.requiresTarget.acquired === "RANDOM") {
+            // get a target that is NOT the player
+            const target = sample([...enemiesInFOV.get()]);
 
-          if (target) {
+            if (target) {
+              player.add("TargetingItem", { item: entity });
+              player.add("Target", { locId: toLocId(target.position) });
+            } else {
+              addLog(`The scroll disintegrates uselessly in your hand`);
+              entity.destroy();
+            }
+          }
+
+          if (entity.requiresTarget.acquired === "MANUAL") {
             player.add("TargetingItem", { item: entity });
-            player.add("Target", { locId: toLocId(target.position) });
-          } else {
-            addLog(`The scroll disintegrates uselessly in your hand`);
-            entity.destroy();
+            gameState = "TARGETING";
+            return;
           }
         } else if (entity.has("Effects")) {
           // clone all effects and add to self
@@ -220,17 +230,17 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop);
 
-// Only do this during development
-if (process.env.NODE_ENV === "development") {
-  const canvas = document.querySelector("#canvas");
+const canvas = document.querySelector("#canvas");
 
-  canvas.onclick = (e) => {
-    const [x, y] = pxToCell(e);
-    const locId = toLocId({ x, y });
+canvas.onclick = (e) => {
+  const [x, y] = pxToCell(e);
+  const locId = toLocId({ x, y });
 
-    readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
-      const entity = ecs.getEntity(eId);
+  readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
+    const entity = ecs.getEntity(eId);
 
+    // Only do this during development
+    if (process.env.NODE_ENV === "development") {
       console.log(
         `${get(entity, "appearance.char", "?")} ${get(
           entity,
@@ -239,6 +249,13 @@ if (process.env.NODE_ENV === "development") {
         )}`,
         entity.serialize()
       );
-    });
-  };
-}
+    }
+
+    if (gameState === "TARGETING") {
+      player.add("Target", { locId });
+      gameState = "GAME";
+      targeting();
+      render(player);
+    }
+  });
+};
