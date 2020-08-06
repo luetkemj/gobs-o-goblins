@@ -2,14 +2,18 @@ import { remove } from "lodash";
 import { Component } from "geotic";
 import { addCacheSet, deleteCacheSet } from "./cache";
 
+const effectProps = {
+  component: "",
+  delta: "",
+  animate: { char: "", color: "" },
+  events: [], // { name: "", args: {} },
+  addComponents: [], // { name: '', properties: {} }
+  duration: 0, // in turns
+};
+
 export class ActiveEffects extends Component {
   static allowMultiple = true;
-  static properties = {
-    component: "",
-    delta: "",
-    animate: { char: "", color: "" },
-    events: [], // { name: "", args: {} },
-  };
+  static properties = effectProps;
 }
 
 export class Ai extends Component {}
@@ -47,12 +51,7 @@ export class Description extends Component {
 
 export class Effects extends Component {
   static allowMultiple = true;
-  static properties = {
-    component: "",
-    delta: "",
-    animate: { char: "", color: "" },
-    events: [], // { name: "", args: {} },
-  };
+  static properties = effectProps;
 }
 
 export class Health extends Component {
@@ -114,6 +113,8 @@ export class Layer400 extends Component {}
 export class Move extends Component {
   static properties = { x: 0, y: 0, relative: true };
 }
+
+export class Paralyzed extends Component {}
 
 export class Position extends Component {
   static properties = { x: 0, y: 0 };

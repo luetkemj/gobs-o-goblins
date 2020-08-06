@@ -19,6 +19,7 @@ import {
   Layer300,
   Layer400,
   Move,
+  Paralyzed,
   Position,
   Power,
   RequiresTarget,
@@ -32,6 +33,7 @@ import {
   Tile,
   HealthPotion,
   ScrollLightning,
+  ScrollParalyze,
   Goblin,
   Player,
   Wall,
@@ -60,6 +62,7 @@ ecs.registerComponent(Layer100);
 ecs.registerComponent(Layer300);
 ecs.registerComponent(Layer400);
 ecs.registerComponent(Move);
+ecs.registerComponent(Paralyzed);
 ecs.registerComponent(Position);
 ecs.registerComponent(Power);
 ecs.registerComponent(RequiresTarget);
@@ -77,6 +80,7 @@ ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
 ecs.registerPrefab(ScrollLightning);
+ecs.registerPrefab(ScrollParalyze);
 
 export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {

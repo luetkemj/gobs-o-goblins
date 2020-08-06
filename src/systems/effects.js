@@ -20,9 +20,30 @@ export const effects = () => {
         c.events.forEach((event) => entity.fireEvent(event.name, event.args));
       }
 
+      // handle addComponents
+      if (c.addComponents.length) {
+        c.addComponents.forEach((component) => {
+          if (!entity.has(component.name)) {
+            entity.add(component.name, component.properties);
+          }
+        });
+      }
+
       entity.add("Animate", { ...c.animate });
 
-      c.remove();
+      if (!c.duration) {
+        c.remove();
+
+        if (c.addComponents.length) {
+          c.addComponents.forEach((component) => {
+            if (entity.has(component.name)) {
+              entity.remove(component.name, component.properties);
+            }
+          });
+        }
+      } else {
+        c.duration -= 1;
+      }
     });
   });
 };

@@ -83,6 +83,35 @@ export const ScrollLightning = {
   ],
 };
 
+export const ScrollParalyze = {
+  name: "ScrollParalyze",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "♪", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "scroll of paralyze" },
+    },
+    {
+      type: "Effects",
+      properties: {
+        animate: { color: "#FFB0B0" },
+        addComponents: [
+          {
+            name: "Paralyzed",
+            properties: {},
+          },
+        ],
+        duration: 10,
+      },
+    },
+    { type: "RequiresTarget", properties: { acquired: "MANUAL" } },
+  ],
+};
+
 export const Wall = {
   name: "Wall",
   inherit: ["Tile"],
