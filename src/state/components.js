@@ -29,7 +29,6 @@ export class Animate extends Component {
 
   onSetStartTime(evt) {
     this.startTime = evt.data.time;
-    evt.handle();
   }
 }
 
