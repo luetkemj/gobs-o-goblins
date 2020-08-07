@@ -1,7 +1,7 @@
 import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
-import { toLocId } from "./lib/grid";
+import { toLocId, circle } from "./lib/grid";
 import { readCacheSet } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
@@ -52,6 +52,11 @@ times(10, () => {
 times(10, () => {
   const tile = sample(openTiles);
   ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+});
+
+times(10, () => {
+  const tile = sample(openTiles);
+  ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
 });
 
 fov(player);
@@ -255,9 +260,17 @@ canvas.onclick = (e) => {
     }
 
     if (gameState === "TARGETING") {
-      player.add("Target", { locId });
+      const entity = player.inventory.list[selectedInventoryIndex];
+      if (entity.requiresTarget.aoeRange) {
+        const targets = circle({ x, y }, entity.requiresTarget.aoeRange);
+        targets.forEach((locId) => player.add("Target", { locId }));
+      } else {
+        player.add("Target", { locId });
+      }
+
       gameState = "GAME";
       targeting();
+      effects();
       render(player);
     }
   });

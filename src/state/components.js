@@ -136,10 +136,12 @@ export class Power extends Component {
 export class RequiresTarget extends Component {
   static properties = {
     acquired: "RANDOM",
+    aoeRange: 0,
   };
 }
 
 export class Target extends Component {
+  static allowMultiple = true;
   static properties = { locId: "" };
 }
 

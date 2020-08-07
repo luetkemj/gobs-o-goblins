@@ -32,6 +32,7 @@ import {
   Item,
   Tile,
   HealthPotion,
+  ScrollFireball,
   ScrollLightning,
   ScrollParalyze,
   Goblin,
@@ -79,6 +80,7 @@ ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
+ecs.registerPrefab(ScrollFireball);
 ecs.registerPrefab(ScrollLightning);
 ecs.registerPrefab(ScrollParalyze);
 

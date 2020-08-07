@@ -112,6 +112,40 @@ export const ScrollParalyze = {
   ],
 };
 
+export const ScrollFireball = {
+  name: "ScrollFireball",
+  inherit: ["Item"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "♪", color: "#DAA520" },
+    },
+    {
+      type: "Description",
+      properties: { name: "scroll of fireball" },
+    },
+    {
+      type: "Effects",
+      properties: {
+        animate: { color: "#FFA200", char: "^" },
+        events: [
+          {
+            name: "take-damage",
+            args: { amount: 25 },
+          },
+        ],
+      },
+    },
+    {
+      type: "RequiresTarget",
+      properties: {
+        acquired: "MANUAL",
+        aoeRange: 3,
+      },
+    },
+  ],
+};
+
 export const Wall = {
   name: "Wall",
   inherit: ["Tile"],

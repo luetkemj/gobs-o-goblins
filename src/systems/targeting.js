@@ -12,13 +12,19 @@ export const targeting = () => {
     const { item } = entity.targetingItem;
 
     if (item && item.has("Effects")) {
-      const targets = readCacheSet("entitiesAtLocation", entity.target.locId);
+      entity.target.forEach((t) => {
+        const targets = readCacheSet("entitiesAtLocation", t.locId);
 
-      targets.forEach((eId) => {
-        const target = ecs.getEntity(eId);
-        item
-          .get("Effects")
-          .forEach((x) => target.add("ActiveEffects", { ...x.serialize() }));
+        targets.forEach((eId) => {
+          const target = ecs.getEntity(eId);
+          if (target.isInFov) {
+            item
+              .get("Effects")
+              .forEach((x) =>
+                target.add("ActiveEffects", { ...x.serialize() })
+              );
+          }
+        });
       });
 
       entity.remove("Target");
