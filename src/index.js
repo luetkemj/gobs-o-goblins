@@ -11,7 +11,7 @@ import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import { targeting } from "./systems/targeting";
-import ecs, { addLog } from "./state/ecs";
+import ecs from "./state/ecs";
 import { IsInFov, Move, Position, Ai } from "./state/components";
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
@@ -22,6 +22,10 @@ let playerTurn = true;
 export let gameState = "GAME";
 export let selectedInventoryIndex = 0;
 
+export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export const addLog = (text) => {
+  messageLog.unshift(text);
+};
 
 const initGame = () => {
   // init game map and player position

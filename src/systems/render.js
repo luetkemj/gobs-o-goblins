@@ -9,7 +9,6 @@ import {
   Layer300,
   Layer400,
 } from "../state/components";
-import { messageLog } from "../state/ecs";
 import {
   clearCanvas,
   drawCell,
@@ -20,7 +19,7 @@ import {
 } from "../lib/canvas";
 import { toLocId } from "../lib/grid";
 import { readCacheSet } from "../state/cache";
-import { gameState, selectedInventoryIndex } from "../index";
+import { gameState, messageLog, selectedInventoryIndex } from "../index";
 
 const layer100Entities = ecs.createQuery({
   all: [Position, Appearance, Layer100],

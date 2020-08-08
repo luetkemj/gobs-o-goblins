@@ -1,5 +1,6 @@
-import ecs, { addLog } from "../state/ecs";
-import { addCacheSet, deleteCacheSet, readCacheSet } from "../state/cache";
+import ecs from "../state/ecs";
+import { addLog } from "../index";
+import { readCacheSet } from "../state/cache";
 import { grid } from "../lib/canvas";
 import { Move } from "../state/components";
 
