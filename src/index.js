@@ -270,6 +270,12 @@ const update = () => {
   animation();
 
   if (player.isDead) {
+    if (gameState !== "GAMEOVER") {
+      addLog("You are dead.");
+      render(player);
+    }
+    gameState = "GAMEOVER";
+    processUserInput();
     return;
   }
 
