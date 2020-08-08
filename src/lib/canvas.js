@@ -42,6 +42,13 @@ export const grid = {
     x: 21,
     y: 4,
   },
+
+  menu: {
+    width: 100,
+    height: 1,
+    x: 0,
+    y: 33,
+  },
 };
 
 const lineHeight = 1.2;

@@ -2,7 +2,12 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { readCacheSet } from "./state/cache";
+import {
+  clearCache,
+  deserializeCache,
+  readCacheSet,
+  serializeCache,
+} from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -11,67 +16,141 @@ import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import { targeting } from "./systems/targeting";
-import ecs, { addLog } from "./state/ecs";
+import ecs from "./state/ecs";
 import { IsInFov, Move, Position, Ai } from "./state/components";
+
+export let messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export const addLog = (text) => {
+  messageLog.unshift(text);
+};
+
+const saveGame = () => {
+  const gameSaveData = {
+    ecs: ecs.serialize(),
+    cache: serializeCache(),
+    playerId: player.id,
+    messageLog,
+  };
+  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
+  addLog("Game saved");
+};
+
+const loadGame = () => {
+  const data = JSON.parse(localStorage.getItem("gameSaveData"));
+  if (!data) {
+    addLog("Failed to load - no saved games found");
+    return;
+  }
+
+  for (let entity of ecs.entities.all) {
+    entity.destroy();
+  }
+
+  ecs.deserialize(data.ecs);
+  deserializeCache(data.cache);
+
+  player = ecs.getEntity(data.playerId);
+
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+
+  messageLog = data.messageLog;
+  addLog("Game loaded");
+};
+
+const newGame = () => {
+  for (let item of ecs.entities.all) {
+    item.destroy();
+  }
+  clearCache();
+
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+
+  messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+
+  initGame();
+};
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
-// init game map and player position
-const dungeon = createDungeon({
-  x: grid.map.x,
-  y: grid.map.y,
-  width: grid.map.width,
-  height: grid.map.height,
-});
+const initGame = () => {
+  // init game map and player position
+  const dungeon = createDungeon({
+    x: grid.map.x,
+    y: grid.map.y,
+    width: grid.map.width,
+    height: grid.map.height,
+  });
 
-const player = ecs.createPrefab("Player");
-player.add(Position, {
-  x: dungeon.rooms[0].center.x,
-  y: dungeon.rooms[0].center.y,
-});
+  player = ecs.createPrefab("Player");
+  player.add(Position, {
+    x: dungeon.rooms[0].center.x,
+    y: dungeon.rooms[0].center.y,
+  });
 
-const openTiles = Object.values(dungeon.tiles).filter(
-  (x) => x.sprite === "FLOOR"
-);
+  const openTiles = Object.values(dungeon.tiles).filter(
+    (x) => x.sprite === "FLOOR"
+  );
 
-times(5, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
-});
+  times(5, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
+  });
 
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
-});
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+  });
 
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
-});
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
+  });
 
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
-});
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+  });
 
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
-});
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
+  });
 
-fov(player);
-render(player);
+  fov(player);
+  render(player);
+};
 
+let player = {};
 let userInput = null;
 let playerTurn = true;
 export let gameState = "GAME";
 export let selectedInventoryIndex = 0;
+
+initGame();
 
 document.addEventListener("keydown", (ev) => {
   userInput = ev.key;
 });
 
 const processUserInput = () => {
+  if (userInput === "l") {
+    loadGame();
+  }
+
+  if (userInput === "n") {
+    newGame();
+  }
+
+  if (userInput === "s") {
+    saveGame();
+  }
+
   if (gameState === "GAME") {
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1 });
@@ -191,6 +270,12 @@ const update = () => {
   animation();
 
   if (player.isDead) {
+    if (gameState !== "GAMEOVER") {
+      addLog("You are dead.");
+      render(player);
+    }
+    gameState = "GAMEOVER";
+    processUserInput();
     return;
   }
 

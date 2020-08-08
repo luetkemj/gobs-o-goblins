@@ -1,4 +1,5 @@
-import ecs, { addLog } from "../state/ecs";
+import ecs from "../state/ecs";
+import { addLog } from "../index";
 import { readCacheSet } from "../state/cache";
 
 import { Target, TargetingItem } from "../state/components";
