@@ -84,9 +84,4 @@ ecs.registerPrefab(ScrollFireball);
 ecs.registerPrefab(ScrollLightning);
 ecs.registerPrefab(ScrollParalyze);
 
-export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
-export const addLog = (text) => {
-  messageLog.unshift(text);
-};
-
 export default ecs;

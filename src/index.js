@@ -2,7 +2,7 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { readCacheSet } from "./state/cache";
+import { readCacheSet, serializeCache } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -11,8 +11,24 @@ import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import { targeting } from "./systems/targeting";
-import ecs, { addLog } from "./state/ecs";
+import ecs from "./state/ecs";
 import { IsInFov, Move, Position, Ai } from "./state/components";
+
+export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export const addLog = (text) => {
+  messageLog.unshift(text);
+};
+
+const saveGame = () => {
+  const gameSaveData = {
+    ecs: ecs.serialize(),
+    cache: serializeCache(),
+    playerId: player.id,
+    messageLog,
+  };
+  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
+  addLog("Game saved");
+};
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
@@ -72,6 +88,10 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
+  if (userInput === "s") {
+    saveGame();
+  }
+
   if (gameState === "GAME") {
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1 });
