@@ -2,7 +2,7 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { readCacheSet, serializeCache } from "./state/cache";
+import { deserializeCache, readCacheSet, serializeCache } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -14,7 +14,7 @@ import { targeting } from "./systems/targeting";
 import ecs from "./state/ecs";
 import { IsInFov, Move, Position, Ai } from "./state/components";
 
-export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export let messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {
   messageLog.unshift(text);
 };
@@ -30,6 +30,31 @@ const saveGame = () => {
   addLog("Game saved");
 };
 
+const loadGame = () => {
+  const data = JSON.parse(localStorage.getItem("gameSaveData"));
+  if (!data) {
+    addLog("Failed to load - no saved games found");
+    return;
+  }
+
+  for (let entity of ecs.entities.all) {
+    entity.destroy();
+  }
+
+  ecs.deserialize(data.ecs);
+  deserializeCache(data.cache);
+
+  player = ecs.getEntity(data.playerId);
+
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+
+  messageLog = data.messageLog;
+  addLog("Game loaded");
+};
+
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
 // init game map and player position
@@ -40,7 +65,7 @@ const dungeon = createDungeon({
   height: grid.map.height,
 });
 
-const player = ecs.createPrefab("Player");
+let player = ecs.createPrefab("Player");
 player.add(Position, {
   x: dungeon.rooms[0].center.x,
   y: dungeon.rooms[0].center.y,
@@ -88,6 +113,10 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
+  if (userInput === "l") {
+    loadGame();
+  }
+
   if (userInput === "s") {
     saveGame();
   }
