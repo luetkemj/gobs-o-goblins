@@ -27,4 +27,32 @@ export const readCacheSet = (name, key, value) => {
   }
 };
 
+export const serializeCache = () => {
+  const entitiesAtLocation = Object.keys(cache.entitiesAtLocation).reduce(
+    (acc, val) => {
+      acc[val] = [...cache.entitiesAtLocation[val]];
+      return acc;
+    },
+    {}
+  );
+
+  return {
+    entitiesAtLocation,
+  };
+};
+
+export const deserializeCache = (data) => {
+  cache.entitiesAtLocation = Object.keys(data.entitiesAtLocation).reduce(
+    (acc, val) => {
+      acc[val] = new Set(data.entitiesAtLocation[val]);
+      return acc;
+    },
+    {}
+  );
+};
+
+export const clearCache = () => {
+  cache.entitiesAtLocation = {};
+};
+
 export default cache;

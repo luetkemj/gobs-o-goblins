@@ -2,7 +2,7 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { readCacheSet } from "./state/cache";
+import { readCacheSet, serializeCache } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -21,12 +21,29 @@ let userInput = null;
 let playerTurn = true;
 export let gameState = "GAME";
 export let selectedInventoryIndex = 0;
+export let messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 
 export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {
   messageLog.unshift(text);
 };
 
+export function saveGame() {
+  const gameSaveData = {
+    ecs: ecs.serialize(),
+    cache: serializeCache(),
+
+    playerId: player.id,
+    userInput,
+    playerTurn,
+    gameState,
+    selectedInventoryIndex,
+    messageLog,
+  };
+  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
+
+  console.log("game saved");
+}
 const initGame = () => {
   // init game map and player position
   const dungeon = createDungeon({
@@ -82,6 +99,10 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
+  if (userInput === "S") {
+    saveGame();
+  }
+
   if (gameState === "GAME") {
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1 });
