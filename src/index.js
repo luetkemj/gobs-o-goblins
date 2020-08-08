@@ -95,10 +95,12 @@ const loadGame = () => {
   deserializeCache(data.cache);
 
   player = ecs.getEntity(data.playerId);
-  userInput = data.userInput;
-  playerTurn = data.playerTurn;
-  gameState = data.gameState;
-  selectedInventoryIndex = data.selectedInventoryIndex;
+
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+
   messageLog = data.messageLog;
   addLog("Game loaded");
 };
@@ -107,16 +109,10 @@ const saveGame = () => {
   const gameSaveData = {
     ecs: ecs.serialize(),
     cache: serializeCache(),
-
     playerId: player.id,
-    userInput,
-    playerTurn,
-    gameState,
-    selectedInventoryIndex,
     messageLog,
   };
   localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
-
   addLog("Game saved");
 };
 
@@ -126,11 +122,11 @@ const newGame = () => {
   }
   clearCache();
 
-  player = {};
   userInput = null;
   playerTurn = true;
   gameState = "GAME";
   selectedInventoryIndex = 0;
+
   messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 
   initGame();
