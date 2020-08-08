@@ -16,56 +16,62 @@ import { IsInFov, Move, Position, Ai } from "./state/components";
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
-// init game map and player position
-const dungeon = createDungeon({
-  x: grid.map.x,
-  y: grid.map.y,
-  width: grid.map.width,
-  height: grid.map.height,
-});
-
-const player = ecs.createPrefab("Player");
-player.add(Position, {
-  x: dungeon.rooms[0].center.x,
-  y: dungeon.rooms[0].center.y,
-});
-
-const openTiles = Object.values(dungeon.tiles).filter(
-  (x) => x.sprite === "FLOOR"
-);
-
-times(5, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
-});
-
-fov(player);
-render(player);
-
+let player = {};
 let userInput = null;
 let playerTurn = true;
 export let gameState = "GAME";
 export let selectedInventoryIndex = 0;
+
+
+const initGame = () => {
+  // init game map and player position
+  const dungeon = createDungeon({
+    x: grid.map.x,
+    y: grid.map.y,
+    width: grid.map.width,
+    height: grid.map.height,
+  });
+
+  player = ecs.createPrefab("Player");
+  player.add(Position, {
+    x: dungeon.rooms[0].center.x,
+    y: dungeon.rooms[0].center.y,
+  });
+
+  const openTiles = Object.values(dungeon.tiles).filter(
+    (x) => x.sprite === "FLOOR"
+  );
+
+  times(5, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
+  });
+
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+  });
+
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
+  });
+
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+  });
+
+  times(10, () => {
+    const tile = sample(openTiles);
+    ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
+  });
+
+  fov(player);
+  render(player);
+};
+
+initGame();
 
 document.addEventListener("keydown", (ev) => {
   userInput = ev.key;
