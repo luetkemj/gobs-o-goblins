@@ -9,7 +9,7 @@ const baseMatrix = [];
 times(grid.height, () => baseMatrix.push(new Array(grid.width).fill(0)));
 
 export const aStar = (start, goal) => {
-  const matrix = [...baseMatrix];
+  const matrix = JSON.parse(JSON.stringify(baseMatrix));
 
   const locIds = Object.keys(cache.entitiesAtLocation);
 
