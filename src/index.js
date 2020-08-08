@@ -83,7 +83,7 @@ const initGame = () => {
 const loadGame = () => {
   const data = JSON.parse(localStorage.getItem("gameSaveData"));
   if (!data) {
-    console.log("No Saved Games Found");
+    addLog("Failed to load - no saved games found");
     return;
   }
 
@@ -100,7 +100,7 @@ const loadGame = () => {
   gameState = data.gameState;
   selectedInventoryIndex = data.selectedInventoryIndex;
   messageLog = data.messageLog;
-  console.log("game loaded");
+  addLog("Game loaded");
 };
 
 const saveGame = () => {
@@ -117,7 +117,7 @@ const saveGame = () => {
   };
   localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
 
-  console.log("game saved");
+  addLog("Game saved");
 };
 
 const newGame = () => {
@@ -143,15 +143,15 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
-  if (userInput === "L") {
+  if (userInput === "l") {
     loadGame();
   }
 
-  if (userInput === "N") {
+  if (userInput === "n") {
     newGame();
   }
 
-  if (userInput === "S") {
+  if (userInput === "s") {
     saveGame();
   }
 
@@ -274,6 +274,12 @@ const update = () => {
   animation();
 
   if (player.isDead) {
+    if (gameState !== "GAMEOVER") {
+      addLog("You are dead.");
+      render(player);
+    }
+    gameState = "GAMEOVER";
+    processUserInput();
     return;
   }
 

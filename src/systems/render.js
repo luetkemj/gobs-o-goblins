@@ -278,7 +278,7 @@ const renderInventory = (player) => {
 
 const renderMenu = () => {
   drawText({
-    text: `(N)New (S)Save (L)Load | (i)Inventory (g)Pickup (arrow keys)Move/Attack (mouse)Look/Target`,
+    text: `(n)New (s)Save (l)Load | (i)Inventory (g)Pickup (arrow keys)Move/Attack (mouse)Look/Target`,
     background: "transparent",
     color: "#666",
     x: grid.menu.x,
