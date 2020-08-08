@@ -2,7 +2,12 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { deserializeCache, readCacheSet, serializeCache } from "./state/cache";
+import {
+  clearCache,
+  deserializeCache,
+  readCacheSet,
+  serializeCache,
+} from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -26,46 +31,6 @@ export let messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {
   messageLog.unshift(text);
 };
-
-function loadGame() {
-  const data = JSON.parse(localStorage.getItem("gameSaveData"));
-  if (!data) {
-    console.log("No Saved Games Found");
-    return;
-  }
-
-  for (let item of ecs.entities.all) {
-    item.destroy();
-  }
-
-  ecs.deserialize(data.ecs);
-  deserializeCache(data.cache);
-
-  player = ecs.getEntity(data.playerId);
-  userInput = data.userInput;
-  playerTurn = data.playerTurn;
-  gameState = data.gameState;
-  selectedInventoryIndex = data.selectedInventoryIndex;
-  messageLog = data.messageLog;
-  console.log("game loaded");
-}
-
-function saveGame() {
-  const gameSaveData = {
-    ecs: ecs.serialize(),
-    cache: serializeCache(),
-
-    playerId: player.id,
-    userInput,
-    playerTurn,
-    gameState,
-    selectedInventoryIndex,
-    messageLog,
-  };
-  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
-
-  console.log("game saved");
-}
 
 const initGame = () => {
   // init game map and player position
@@ -115,6 +80,62 @@ const initGame = () => {
   render(player);
 };
 
+const loadGame = () => {
+  const data = JSON.parse(localStorage.getItem("gameSaveData"));
+  if (!data) {
+    console.log("No Saved Games Found");
+    return;
+  }
+
+  for (let item of ecs.entities.all) {
+    item.destroy();
+  }
+
+  ecs.deserialize(data.ecs);
+  deserializeCache(data.cache);
+
+  player = ecs.getEntity(data.playerId);
+  userInput = data.userInput;
+  playerTurn = data.playerTurn;
+  gameState = data.gameState;
+  selectedInventoryIndex = data.selectedInventoryIndex;
+  messageLog = data.messageLog;
+  console.log("game loaded");
+};
+
+const saveGame = () => {
+  const gameSaveData = {
+    ecs: ecs.serialize(),
+    cache: serializeCache(),
+
+    playerId: player.id,
+    userInput,
+    playerTurn,
+    gameState,
+    selectedInventoryIndex,
+    messageLog,
+  };
+  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
+
+  console.log("game saved");
+};
+
+const newGame = () => {
+  for (let item of ecs.entities.all) {
+    item.destroy();
+  }
+  clearCache();
+
+  player = {};
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+  messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+
+  initGame();
+};
+
 initGame();
 
 document.addEventListener("keydown", (ev) => {
@@ -124,6 +145,10 @@ document.addEventListener("keydown", (ev) => {
 const processUserInput = () => {
   if (userInput === "L") {
     loadGame();
+  }
+
+  if (userInput === "N") {
+    newGame();
   }
 
   if (userInput === "S") {
