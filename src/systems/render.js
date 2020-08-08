@@ -276,10 +276,21 @@ const renderInventory = (player) => {
   }
 };
 
+const renderMenu = () => {
+  drawText({
+    text: `(N)New (S)Save (L)Load | (i)Inventory (g)Pickup (arrow keys)Move/Attack (mouse)Look/Target`,
+    background: "transparent",
+    color: "#666",
+    x: grid.menu.x,
+    y: grid.menu.y,
+  });
+};
+
 export const render = (player) => {
   renderMap();
   renderPlayerHud(player);
   renderMessageLog();
+  renderMenu();
 
   if (gameState === "INVENTORY") {
     renderInventory(player);
