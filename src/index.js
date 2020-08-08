@@ -2,7 +2,12 @@ import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
-import { readCacheSet } from "./state/cache";
+import {
+  clearCache,
+  deserializeCache,
+  readCacheSet,
+  serializeCache,
+} from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
 import { ai } from "./systems/ai";
 import { animation } from "./systems/animation";
@@ -11,67 +16,82 @@ import { fov } from "./systems/fov";
 import { movement } from "./systems/movement";
 import { render } from "./systems/render";
 import { targeting } from "./systems/targeting";
-import ecs, { addLog } from "./state/ecs";
+import ecs, { addLog, loadMessageLog, messageLog } from "./state/ecs";
 import { IsInFov, Move, Position, Ai } from "./state/components";
+
+import { game } from "./state/game";
+import { initGame } from "./state/init";
+
+const { player } = game;
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
-// init game map and player position
-const dungeon = createDungeon({
-  x: grid.map.x,
-  y: grid.map.y,
-  width: grid.map.width,
-  height: grid.map.height,
-});
-
-const player = ecs.createPrefab("Player");
-player.add(Position, {
-  x: dungeon.rooms[0].center.x,
-  y: dungeon.rooms[0].center.y,
-});
-
-const openTiles = Object.values(dungeon.tiles).filter(
-  (x) => x.sprite === "FLOOR"
-);
-
-times(5, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
-});
-
-times(10, () => {
-  const tile = sample(openTiles);
-  ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
-});
-
-fov(player);
-render(player);
+initGame();
 
 let userInput = null;
 let playerTurn = true;
 export let gameState = "GAME";
 export let selectedInventoryIndex = 0;
 
+function newGame() {
+  // destory old game
+  for (let item of ecs.entities.all) {
+    item.destroy();
+  }
+  clearCache();
+
+  // init new game
+  player = initGame().player;
+  userInput = null;
+  playerTurn = true;
+  gameState = "GAME";
+  selectedInventoryIndex = 0;
+  loadMessageLog(["", "Welcome to Gobs 'O Goblins!", ""]);
+}
+
+function saveGame() {
+  const gameSaveData = {
+    ecs: ecs.serialize(),
+    cache: serializeCache(),
+    gameState,
+    messageLog,
+    playerTurn,
+    playerId: player.id,
+    userInput,
+  };
+  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
+
+  addLog("game saved");
+}
+
+function loadGame() {
+  const data = JSON.parse(localStorage.getItem("gameSaveData"));
+  if (!data) {
+    console.log("No Saved Games Found");
+    return;
+  }
+
+  for (let item of ecs.entities.all) {
+    item.destroy();
+  }
+
+  ecs.deserialize(data.ecs);
+  deserializeCache(data.cache);
+  loadMessageLog(data.messageLog);
+  gameState = data.gameState;
+  userInput = data.userInput;
+  playerTurn = data.playerTurn;
+  player = ecs.getEntity(data.playerId);
+
+  console.log("game loaded");
+}
+
 document.addEventListener("keydown", (ev) => {
   userInput = ev.key;
 });
 
 const processUserInput = () => {
+  console.log(game.player);
   if (gameState === "GAME") {
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1 });
@@ -107,6 +127,18 @@ const processUserInput = () => {
 
     if (userInput === "z") {
       gameState = "TARGETING";
+    }
+
+    if (userInput === "S") {
+      saveGame();
+    }
+
+    if (userInput === "L") {
+      loadGame();
+    }
+
+    if (userInput === "N") {
+      newGame();
     }
 
     userInput = null;
@@ -196,7 +228,7 @@ const update = () => {
 
   if (playerTurn && userInput && gameState === "TARGETING") {
     processUserInput();
-    render(player);
+    render();
     playerTurn = true;
   }
 
@@ -204,7 +236,7 @@ const update = () => {
     processUserInput();
     targeting();
     effects();
-    render(player);
+    render();
     playerTurn = true;
   }
 
@@ -212,8 +244,8 @@ const update = () => {
     processUserInput();
     effects();
     movement();
-    fov(player);
-    render(player);
+    fov();
+    render();
 
     if (gameState === "GAME") {
       playerTurn = false;
@@ -221,11 +253,11 @@ const update = () => {
   }
 
   if (!playerTurn) {
-    ai(player);
+    ai();
     effects();
     movement();
-    fov(player);
-    render(player);
+    fov();
+    render();
 
     playerTurn = true;
   }

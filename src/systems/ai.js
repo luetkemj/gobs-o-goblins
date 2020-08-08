@@ -1,6 +1,7 @@
 import ecs from "../state/ecs";
 import { Ai, Description } from "../state/components";
 import { aStar } from "../lib/pathfinding";
+import { game } from "../state/game";
 
 const aiEntities = ecs.createQuery({
   all: [Ai, Description],
@@ -14,7 +15,8 @@ const moveToTarget = (entity, target) => {
   }
 };
 
-export const ai = (player) => {
+export const ai = () => {
+  const { player } = game;
   aiEntities.get().forEach((entity) => {
     if (entity.has("IsInFov")) {
       moveToTarget(entity, player);

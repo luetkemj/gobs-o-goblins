@@ -1,5 +1,6 @@
 import { some, throttle } from "lodash";
 import ecs from "../state/ecs";
+import { game } from "../state/game";
 import {
   Appearance,
   IsInFov,
@@ -277,7 +278,8 @@ const renderInventory = (player) => {
   }
 };
 
-export const render = (player) => {
+export const render = () => {
+  const { player } = game;
   renderMap();
   renderPlayerHud(player);
   renderMessageLog();

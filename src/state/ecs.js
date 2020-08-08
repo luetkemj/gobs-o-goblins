@@ -88,5 +88,9 @@ export const messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
 export const addLog = (text) => {
   messageLog.unshift(text);
 };
+export const loadMessageLog = (data) => {
+  messageLog.splice(0, messageLog.length);
+  data.forEach((log) => messageLog.push(log));
+};
 
 export default ecs;

@@ -3,6 +3,7 @@ import ecs from "../state/ecs";
 import { grid } from "../lib/canvas";
 import createFOV from "../lib/fov";
 import { IsInFov, IsOpaque, IsRevealed } from "../state/components";
+import { game } from "../state/game";
 
 const inFovEntities = ecs.createQuery({
   all: [IsInFov],
@@ -12,11 +13,12 @@ const opaqueEntities = ecs.createQuery({
   all: [IsOpaque],
 });
 
-export const fov = (origin) => {
+export const fov = () => {
   const { width, height } = grid;
+  const { player } = game;
 
-  const originX = origin.position.x;
-  const originY = origin.position.y;
+  const originX = player.position.x;
+  const originY = player.position.y;
 
   const FOV = createFOV(opaqueEntities, width, height, originX, originY, 10);
 
