@@ -3,6 +3,7 @@ import ecs from "../state/ecs";
 import { grid } from "../lib/canvas";
 import createFOV from "../lib/fov";
 import { IsInFov, IsOpaque, IsRevealed } from "../state/components";
+import { readCache } from "../state/cache";
 
 const inFovEntities = ecs.createQuery({
   all: [IsInFov],
@@ -18,7 +19,15 @@ export const fov = (origin) => {
   const originX = origin.position.x;
   const originY = origin.position.y;
 
-  const FOV = createFOV(opaqueEntities, width, height, originX, originY, 10);
+  const FOV = createFOV(
+    opaqueEntities,
+    width,
+    height,
+    originX,
+    originY,
+    readCache("z"),
+    10
+  );
 
   // clear out stale fov
   inFovEntities.get().forEach((x) => x.remove(IsInFov));

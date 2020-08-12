@@ -6,6 +6,7 @@ import {
   clearCache,
   deserializeCache,
   readCacheSet,
+  readCache,
   serializeCache,
 } from "./state/cache";
 import { createDungeon } from "./lib/dungeon";
@@ -83,6 +84,7 @@ const initGame = () => {
   const dungeon = createDungeon({
     x: grid.map.x,
     y: grid.map.y,
+    z: 1,
     width: grid.map.width,
     height: grid.map.height,
   });
@@ -99,27 +101,37 @@ const initGame = () => {
 
   times(5, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
+    ecs
+      .createPrefab("Goblin")
+      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+    ecs
+      .createPrefab("HealthPotion")
+      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
+    ecs
+      .createPrefab("ScrollLightning")
+      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+    ecs
+      .createPrefab("ScrollParalyze")
+      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
+    ecs
+      .createPrefab("ScrollFireball")
+      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
   fov(player);
@@ -153,16 +165,16 @@ const processUserInput = () => {
 
   if (gameState === "GAME") {
     if (userInput === "ArrowUp") {
-      player.add(Move, { x: 0, y: -1 });
+      player.add(Move, { x: 0, y: -1, z: readCache("z") });
     }
     if (userInput === "ArrowRight") {
-      player.add(Move, { x: 1, y: 0 });
+      player.add(Move, { x: 1, y: 0, z: readCache("z") });
     }
     if (userInput === "ArrowDown") {
-      player.add(Move, { x: 0, y: 1 });
+      player.add(Move, { x: 0, y: 1, z: readCache("z") });
     }
     if (userInput === "ArrowLeft") {
-      player.add(Move, { x: -1, y: 0 });
+      player.add(Move, { x: -1, y: 0, z: readCache("z") });
     }
     if (userInput === "g") {
       let pickupFound = false;
@@ -327,7 +339,7 @@ const canvas = document.querySelector("#canvas");
 
 canvas.onclick = (e) => {
   const [x, y] = pxToCell(e);
-  const locId = toLocId({ x, y });
+  const locId = toLocId({ x, y, z: readCache("z") });
 
   readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
     const entity = ecs.getEntity(eId);
@@ -347,7 +359,9 @@ canvas.onclick = (e) => {
     if (gameState === "TARGETING") {
       const entity = player.inventory.list[selectedInventoryIndex];
       if (entity.requiresTarget.aoeRange) {
-        const targets = circle({ x, y }, entity.requiresTarget.aoeRange);
+        const targets = circle({ x, y }, entity.requiresTarget.aoeRange).map(
+          (locId) => `${locId},${readCache("z")}`
+        );
         targets.forEach((locId) => player.add("Target", { locId }));
       } else {
         player.add("Target", { locId });

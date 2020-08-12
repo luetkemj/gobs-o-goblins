@@ -1,6 +1,13 @@
 export const cache = {
   entitiesAtLocation: {},
+  z: 1,
 };
+
+export const addCache = (name, value) => {
+  cache[name] = value;
+};
+
+export const readCache = (name) => cache[name];
 
 export const addCacheSet = (name, key, value) => {
   if (cache[name][key]) {
@@ -38,17 +45,20 @@ export const serializeCache = () => {
 
   return {
     entitiesAtLocation,
+    z: cache.z,
   };
 };
 
 export const deserializeCache = (data) => {
-  cache.entitiesAtLocation = Object.keys(data.entitiesAtLocation).reduce(
+  const entitiesAtLocation = Object.keys(data.entitiesAtLocation).reduce(
     (acc, val) => {
       acc[val] = new Set(data.entitiesAtLocation[val]);
       return acc;
     },
     {}
   );
+
+  return { entitiesAtLocation, z: data.z };
 };
 
 export const clearCache = () => {
