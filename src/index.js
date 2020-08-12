@@ -3,6 +3,7 @@ import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
 import { toLocId, circle } from "./lib/grid";
 import {
+  addCache,
   clearCache,
   deserializeCache,
   readCacheSet,
@@ -79,20 +80,13 @@ const newGame = () => {
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
-const initGame = () => {
-  // init game map and player position
+const createDungeonLevel = () => {
   const dungeon = createDungeon({
     x: grid.map.x,
     y: grid.map.y,
-    z: 1,
+    z: readCache("z"),
     width: grid.map.width,
     height: grid.map.height,
-  });
-
-  player = ecs.createPrefab("Player");
-  player.add(Position, {
-    x: dungeon.rooms[0].center.x,
-    y: dungeon.rooms[0].center.y,
   });
 
   const openTiles = Object.values(dungeon.tiles).filter(
@@ -134,6 +128,36 @@ const initGame = () => {
       .add(Position, { x: tile.x, y: tile.y, z: tile.z });
   });
 
+  return dungeon;
+};
+
+const initGame = () => {
+  const dungeon = createDungeonLevel();
+
+  player = ecs.createPrefab("Player");
+  player.add(Position, {
+    x: dungeon.rooms[0].center.x,
+    y: dungeon.rooms[0].center.y,
+    z: readCache("z"),
+  });
+
+  fov(player);
+  render(player);
+};
+
+const goToDungeonLevel = (level) => {
+  addCache("z", level);
+
+  const dungeon = createDungeonLevel();
+
+  player.remove(Position);
+
+  player.add(Position, {
+    x: dungeon.rooms[0].center.x,
+    y: dungeon.rooms[0].center.y,
+    z: level,
+  });
+
   fov(player);
   render(player);
 };
@@ -151,6 +175,10 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
+  if (userInput === ">") {
+    goToDungeonLevel(readCache("z") + 1);
+  }
+
   if (userInput === "l") {
     loadGame();
   }

@@ -25,11 +25,11 @@ export default function createFOV(
   const visible = new Set();
 
   const blockingLocations = new Set();
-  opaqueEntities
-    .get()
-    .forEach((x) =>
-      blockingLocations.add(`${x.position.x},${x.position.y},${x.position.z}`)
-    );
+  opaqueEntities.get().forEach((x) => {
+    if (x.position.z === originZ) {
+      blockingLocations.add(`${x.position.x},${x.position.y},${x.position.z}`);
+    }
+  });
 
   const isOpaque = (x, y) => {
     const locId = `${x},${y},${originZ}`;

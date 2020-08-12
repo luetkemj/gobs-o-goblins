@@ -43,6 +43,8 @@ const renderMap = () => {
   clearMap();
 
   layer100Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
@@ -51,6 +53,8 @@ const renderMap = () => {
   });
 
   layer300Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
@@ -59,6 +63,8 @@ const renderMap = () => {
   });
 
   layer400Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
