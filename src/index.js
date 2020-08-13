@@ -95,82 +95,90 @@ const createDungeonLevel = () => {
 
   times(5, () => {
     const tile = sample(openTiles);
-    ecs
-      .createPrefab("Goblin")
-      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
+    ecs.createPrefab("Goblin").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs
-      .createPrefab("HealthPotion")
-      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
+    ecs.createPrefab("HealthPotion").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs
-      .createPrefab("ScrollLightning")
-      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
+    ecs.createPrefab("ScrollLightning").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs
-      .createPrefab("ScrollParalyze")
-      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
+    ecs.createPrefab("ScrollParalyze").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs
-      .createPrefab("ScrollFireball")
-      .add(Position, { x: tile.x, y: tile.y, z: tile.z });
+    ecs.createPrefab("ScrollFireball").add(Position, tile);
   });
 
-  return dungeon;
+  let stairsUp, stairsDown;
+
+  times(1, () => {
+    const tile = sample(openTiles);
+    stairsUp = ecs.createPrefab("StairsUp");
+    stairsUp.add(Position, tile);
+  });
+
+  times(1, () => {
+    const tile = sample(openTiles);
+    stairsDown = ecs.createPrefab("StairsDown");
+    stairsDown.add(Position, tile);
+  });
+
+  return { dungeon, stairsUp, stairsDown };
 };
 
 const initGame = () => {
-  const dungeon = createDungeonLevel();
+  const { dungeon, stairsUp, stairsDown } = createDungeonLevel();
 
   player = ecs.createPrefab("Player");
 
-  const position = {
-    x: dungeon.rooms[0].center.x,
-    y: dungeon.rooms[0].center.y,
-    z: 1,
-  };
+  addCache(`floors.${1}`, {
+    stairsUp: toLocId(stairsUp.position),
+    stairsDown: toLocId(stairsDown.position),
+  });
 
-  addCache(`floors.${1}`, { playerLocId: toLocId(position) });
-
-  player.add(Position, position);
+  player.add(Position, stairsUp.position);
 
   fov(player);
   render(player);
 };
 
 const goToDungeonLevel = (level) => {
+  const goingUp = readCache("z") < level;
   const floor = readCache("floors")[level];
 
   if (floor) {
     addCache("z", level);
     player.remove(Position);
-    player.add(Position, toCell(floor.playerLocId));
+    if (goingUp) {
+      player.add(Position, toCell(floor.stairsDown));
+    } else {
+      player.add(Position, toCell(floor.stairsUp));
+    }
   } else {
     addCache("z", level);
-    const dungeon = createDungeonLevel();
+    const { stairsUp, stairsDown } = createDungeonLevel();
 
-    const position = {
-      x: dungeon.rooms[0].center.x,
-      y: dungeon.rooms[0].center.y,
-      z: level,
-    };
-
-    addCache(`floors.${level}`, { playerLocId: toLocId(position) });
+    addCache(`floors.${level}`, {
+      stairsUp: toLocId(stairsUp.position),
+      stairsDown: toLocId(stairsDown.position),
+    });
 
     player.remove(Position);
-    player.add(Position, position);
+
+    if (goingUp) {
+      player.add(Position, toCell(stairsDown.position));
+    } else {
+      player.add(Position, toCell(stairsUp.position));
+    }
   }
 
   fov(player);
@@ -190,14 +198,6 @@ document.addEventListener("keydown", (ev) => {
 });
 
 const processUserInput = () => {
-  if (userInput === ">") {
-    goToDungeonLevel(readCache("z") + 1);
-  }
-
-  if (userInput === "<") {
-    goToDungeonLevel(readCache("z") - 1);
-  }
-
   if (userInput === "l") {
     loadGame();
   }
@@ -211,6 +211,16 @@ const processUserInput = () => {
   }
 
   if (gameState === "GAME") {
+    if (userInput === ">") {
+      console.log(`going to ${readCache("z") + 1}`);
+      goToDungeonLevel(readCache("z") + 1);
+    }
+
+    if (userInput === "<") {
+      console.log(`going to ${readCache("z") - 1}`);
+      goToDungeonLevel(readCache("z") - 1);
+    }
+
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1, z: readCache("z") });
     }

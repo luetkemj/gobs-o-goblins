@@ -3,7 +3,7 @@ import { get, set } from "lodash";
 export const cache = {
   entitiesAtLocation: {},
   z: 1,
-  floors: {}, // { z: { playerLocId: '' } }
+  floors: {}, // { z: { stairsUp: {}, stairsDown: {} } }
 };
 
 export const addCache = (path, value) => {
