@@ -1,7 +1,7 @@
 import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
-import { toLocId, circle } from "./lib/grid";
+import { toCell, toLocId, circle } from "./lib/grid";
 import {
   addCache,
   clearCache,
@@ -135,28 +135,43 @@ const initGame = () => {
   const dungeon = createDungeonLevel();
 
   player = ecs.createPrefab("Player");
-  player.add(Position, {
+
+  const position = {
     x: dungeon.rooms[0].center.x,
     y: dungeon.rooms[0].center.y,
-    z: readCache("z"),
-  });
+    z: 1,
+  };
+
+  addCache(`floors.${1}`, { playerLocId: toLocId(position) });
+
+  player.add(Position, position);
 
   fov(player);
   render(player);
 };
 
 const goToDungeonLevel = (level) => {
-  addCache("z", level);
+  const floor = readCache("floors")[level];
 
-  const dungeon = createDungeonLevel();
+  if (floor) {
+    addCache("z", level);
+    player.remove(Position);
+    player.add(Position, toCell(floor.playerLocId));
+  } else {
+    addCache("z", level);
+    const dungeon = createDungeonLevel();
 
-  player.remove(Position);
+    const position = {
+      x: dungeon.rooms[0].center.x,
+      y: dungeon.rooms[0].center.y,
+      z: level,
+    };
 
-  player.add(Position, {
-    x: dungeon.rooms[0].center.x,
-    y: dungeon.rooms[0].center.y,
-    z: level,
-  });
+    addCache(`floors.${level}`, { playerLocId: toLocId(position) });
+
+    player.remove(Position);
+    player.add(Position, position);
+  }
 
   fov(player);
   render(player);
@@ -177,6 +192,10 @@ document.addEventListener("keydown", (ev) => {
 const processUserInput = () => {
   if (userInput === ">") {
     goToDungeonLevel(readCache("z") + 1);
+  }
+
+  if (userInput === "<") {
+    goToDungeonLevel(readCache("z") - 1);
   }
 
   if (userInput === "l") {
