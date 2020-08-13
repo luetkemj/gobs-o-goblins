@@ -1,6 +1,16 @@
+import { get, set } from "lodash";
+
 export const cache = {
   entitiesAtLocation: {},
+  z: -1,
+  floors: {}, // { z: { stairsUp: {}, stairsDown: {} } }
 };
+
+export const addCache = (path, value) => {
+  set(cache, path, value);
+};
+
+export const readCache = (path) => get(cache, path);
 
 export const addCacheSet = (name, key, value) => {
   if (cache[name][key]) {
@@ -38,21 +48,29 @@ export const serializeCache = () => {
 
   return {
     entitiesAtLocation,
+    z: cache.z,
+    floors: cache.floors,
   };
 };
 
 export const deserializeCache = (data) => {
-  cache.entitiesAtLocation = Object.keys(data.entitiesAtLocation).reduce(
+  const entitiesAtLocation = Object.keys(data.entitiesAtLocation).reduce(
     (acc, val) => {
       acc[val] = new Set(data.entitiesAtLocation[val]);
       return acc;
     },
     {}
   );
+
+  return { entitiesAtLocation, z: data.z };
 };
 
 export const clearCache = () => {
   cache.entitiesAtLocation = {};
+  cache.z = 1;
+  cache.floors = {};
 };
+
+window.c = cache;
 
 export default cache;

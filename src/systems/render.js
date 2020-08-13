@@ -18,7 +18,7 @@ import {
   pxToCell,
 } from "../lib/canvas";
 import { toLocId } from "../lib/grid";
-import { readCacheSet } from "../state/cache";
+import { readCache, readCacheSet } from "../state/cache";
 import { gameState, messageLog, selectedInventoryIndex } from "../index";
 
 const layer100Entities = ecs.createQuery({
@@ -157,8 +157,8 @@ const clearInfoBar = () => {
 const renderInfoBar = (mPos) => {
   clearInfoBar();
 
-  const { x, y } = mPos;
-  const locId = toLocId({ x, y });
+  const { x, y, z } = mPos;
+  const locId = toLocId({ x, y, z });
 
   const esAtLoc = readCacheSet("entitiesAtLocation", locId) || [];
   const entitiesAtLoc = [...esAtLoc];
@@ -172,7 +172,7 @@ const renderInfoBar = (mPos) => {
           char: "",
           background: "rgba(255, 255, 255, 0.5)",
         },
-        position: { x, y },
+        position: { x, y, z },
       });
     }
 
@@ -211,8 +211,8 @@ const renderInfoBar = (mPos) => {
 };
 
 const renderTargeting = (mPos) => {
-  const { x, y } = mPos;
-  const locId = toLocId({ x, y });
+  const { x, y, z } = mPos;
+  const locId = toLocId({ x, y, z });
 
   const esAtLoc = readCacheSet("entitiesAtLocation", locId) || [];
   const entitiesAtLoc = [...esAtLoc];
@@ -226,7 +226,7 @@ const renderTargeting = (mPos) => {
           char: "",
           background: "rgba(74, 232, 218, 0.5)",
         },
-        position: { x, y },
+        position: { x, y, z },
       });
     }
   }
@@ -302,12 +302,12 @@ canvas.onmousemove = throttle((e) => {
   if (gameState === "GAME") {
     const [x, y] = pxToCell(e);
     renderMap();
-    renderInfoBar({ x, y });
+    renderInfoBar({ x, y, z: readCache("z") });
   }
 
   if (gameState === "TARGETING") {
     const [x, y] = pxToCell(e);
     renderMap();
-    renderTargeting({ x, y });
+    renderTargeting({ x, y, z: readCache("z") });
   }
 }, 50);

@@ -31,6 +31,7 @@ export const movement = () => {
 
     let mx = entity.move.x;
     let my = entity.move.y;
+    let mz = entity.move.z;
 
     if (entity.move.relative) {
       mx = entity.position.x + entity.move.x;
@@ -45,7 +46,10 @@ export const movement = () => {
     // check for blockers
     const blockers = [];
     // read from cache
-    const entitiesAtLoc = readCacheSet("entitiesAtLocation", `${mx},${my}`);
+    const entitiesAtLoc = readCacheSet(
+      "entitiesAtLocation",
+      `${mx},${my},${mz}`
+    );
 
     for (const eId of entitiesAtLoc) {
       if (ecs.getEntity(eId).isBlocking) {
@@ -69,7 +73,7 @@ export const movement = () => {
     }
 
     entity.remove("Position");
-    entity.add("Position", { x: mx, y: my });
+    entity.add("Position", { x: mx, y: my, z: mz });
 
     entity.remove(Move);
   });
