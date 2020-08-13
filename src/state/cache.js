@@ -2,7 +2,7 @@ import { get, set } from "lodash";
 
 export const cache = {
   entitiesAtLocation: {},
-  z: 1,
+  z: -1,
   floors: {}, // { z: { stairsUp: {}, stairsDown: {} } }
 };
 

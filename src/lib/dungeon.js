@@ -24,7 +24,7 @@ function digVerticalPassage(y1, y2, x, z) {
   let y = start;
 
   while (y < end) {
-    tiles[`${x},${y},${z}`] = { x, y, sprite: "FLOOR" };
+    tiles[`${x},${y},${z}`] = { x, y, z, sprite: "FLOOR" };
     y++;
   }
 
