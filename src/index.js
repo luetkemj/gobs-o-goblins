@@ -100,27 +100,28 @@ const initGame = () => {
 
   times(5, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("Goblin").add(Position, { x: tile.x, y: tile.y });
+    ecs.createPrefab("Goblin").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("HealthPotion").add(Position, { x: tile.x, y: tile.y });
+    ecs.createPrefab("HealthPotion").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollLightning").add(Position, { x: tile.x, y: tile.y });
+    ecs.createPrefab("ScrollLightning").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollParalyze").add(Position, { x: tile.x, y: tile.y });
+    ecs.createPrefab("ScrollParalyze").add(Position, tile);
   });
 
   times(10, () => {
     const tile = sample(openTiles);
-    ecs.createPrefab("ScrollFireball").add(Position, { x: tile.x, y: tile.y });
+    ecs.createPrefab("ScrollFireball").add(Position, tile);
+  });
   });
 
   fov(player);
