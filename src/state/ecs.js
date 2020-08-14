@@ -39,6 +39,8 @@ import {
   Player,
   Wall,
   Floor,
+  StairsUp,
+  StairsDown,
 } from "./prefabs";
 
 const ecs = new Engine();
@@ -83,5 +85,9 @@ ecs.registerPrefab(Player);
 ecs.registerPrefab(ScrollFireball);
 ecs.registerPrefab(ScrollLightning);
 ecs.registerPrefab(ScrollParalyze);
+ecs.registerPrefab(StairsUp);
+ecs.registerPrefab(StairsDown);
+
+window.ecs = ecs;
 
 export default ecs;

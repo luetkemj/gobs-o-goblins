@@ -43,6 +43,8 @@ const renderMap = () => {
   clearMap();
 
   layer100Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
@@ -51,6 +53,8 @@ const renderMap = () => {
   });
 
   layer300Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
@@ -59,6 +63,8 @@ const renderMap = () => {
   });
 
   layer400Entities.get().forEach((entity) => {
+    if (entity.position.z !== readCache("z")) return;
+
     if (entity.isInFov) {
       drawCell(entity);
     } else {
@@ -106,6 +112,14 @@ const renderPlayerHud = (player) => {
       y: grid.playerHud.y + 1,
     });
   }
+
+  drawText({
+    text: `Depth: ${Math.abs(readCache("z"))}`,
+    background: "black",
+    color: "#666",
+    x: grid.playerHud.x,
+    y: grid.playerHud.y + 2,
+  });
 };
 
 const clearMessageLog = () => {
@@ -278,7 +292,15 @@ const renderInventory = (player) => {
 
 const renderMenu = () => {
   drawText({
-    text: `(n)New (s)Save (l)Load | (i)Inventory (g)Pickup (arrow keys)Move/Attack (mouse)Look/Target`,
+    text: `(n)New (s)Save (l)Load`,
+    background: "#000",
+    color: "#666",
+    x: grid.menu.x,
+    y: grid.menu.y + 1,
+  });
+
+  drawText({
+    text: `(i)Inventory (g)Pickup (arrow keys)Move/Attack (mouse)Look/Target (<)Stairs Up (>)Stairs Down`,
     background: "#000",
     color: "#666",
     x: grid.menu.x,

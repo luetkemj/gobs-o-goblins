@@ -178,6 +178,36 @@ export const Floor = {
   ],
 };
 
+export const StairsUp = {
+  name: "StairsUp",
+  inherit: ["Tile"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: "<", color: "#AAA" },
+    },
+    {
+      type: "Description",
+      properties: { name: "set of stairs leading up" },
+    },
+  ],
+};
+
+export const StairsDown = {
+  name: "StairsDown",
+  inherit: ["Tile"],
+  components: [
+    {
+      type: "Appearance",
+      properties: { char: ">", color: "#AAA" },
+    },
+    {
+      type: "Description",
+      properties: { name: "set of stairs leading down" },
+    },
+  ],
+};
+
 export const Player = {
   name: "Player",
   inherit: ["Being"],
