@@ -1,8 +1,9 @@
 import { get, sample, times } from "lodash";
 import "./lib/canvas.js";
 import { grid, pxToCell } from "./lib/canvas";
-import { toLocId, circle } from "./lib/grid";
+import { toCell, toLocId, circle } from "./lib/grid";
 import {
+  addCache,
   clearCache,
   deserializeCache,
   readCache,
@@ -80,20 +81,16 @@ const newGame = () => {
 
 const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
 
-const initGame = () => {
-  // init game map and player position
+const createDungeonLevel = ({
+  createStairsUp = true,
+  createStairsDown = true,
+} = {}) => {
   const dungeon = createDungeon({
     x: grid.map.x,
     y: grid.map.y,
     z: readCache("z"),
     width: grid.map.width,
     height: grid.map.height,
-  });
-
-  player = ecs.createPrefab("Player");
-  player.add(Position, {
-    x: dungeon.rooms[0].center.x,
-    y: dungeon.rooms[0].center.y,
   });
 
   const openTiles = Object.values(dungeon.tiles).filter(
@@ -125,6 +122,72 @@ const initGame = () => {
     ecs.createPrefab("ScrollFireball").add(Position, tile);
   });
 
+  let stairsUp, stairsDown;
+
+  if (createStairsUp) {
+    times(1, () => {
+      const tile = sample(openTiles);
+      stairsUp = ecs.createPrefab("StairsUp");
+      stairsUp.add(Position, tile);
+    });
+  }
+
+  if (createStairsDown) {
+    times(1, () => {
+      const tile = sample(openTiles);
+      stairsDown = ecs.createPrefab("StairsDown");
+      stairsDown.add(Position, tile);
+    });
+  }
+
+  return { dungeon, stairsUp, stairsDown };
+};
+
+const goToDungeonLevel = (level) => {
+  const goingUp = readCache("z") < level;
+  const floor = readCache("floors")[level];
+
+  if (floor) {
+    addCache("z", level);
+    player.remove(Position);
+    if (goingUp) {
+      player.add(Position, toCell(floor.stairsDown));
+    } else {
+      player.add(Position, toCell(floor.stairsUp));
+    }
+  } else {
+    addCache("z", level);
+    const { stairsUp, stairsDown } = createDungeonLevel();
+
+    addCache(`floors.${level}`, {
+      stairsUp: toLocId(stairsUp.position),
+      stairsDown: toLocId(stairsDown.position),
+    });
+
+    player.remove(Position);
+
+    if (goingUp) {
+      player.add(Position, toCell(stairsDown.position));
+    } else {
+      player.add(Position, toCell(stairsUp.position));
+    }
+  }
+
+  fov(player);
+  render(player);
+};
+
+const initGame = () => {
+  const { stairsDown } = createDungeonLevel({ createStairsUp: false });
+
+  player = ecs.createPrefab("Player");
+
+  addCache(`floors.${-1}`, {
+    stairsDown: toLocId(stairsDown.position),
+  });
+
+  player.add(Position, stairsDown.position);
+
   fov(player);
   render(player);
 };
@@ -138,7 +201,9 @@ export let selectedInventoryIndex = 0;
 initGame();
 
 document.addEventListener("keydown", (ev) => {
-  userInput = ev.key;
+  if (ev.key !== "Shift") {
+    userInput = ev.key;
+  }
 });
 
 const processUserInput = () => {
@@ -155,6 +220,30 @@ const processUserInput = () => {
   }
 
   if (gameState === "GAME") {
+    if (userInput === ">") {
+      if (
+        toLocId(player.position) ==
+        readCache(`floors.${readCache("z")}.stairsDown`)
+      ) {
+        addLog("You descend deeper into the dungeon");
+        goToDungeonLevel(readCache("z") - 1);
+      } else {
+        addLog("There are no stairs to descend");
+      }
+    }
+
+    if (userInput === "<") {
+      if (
+        toLocId(player.position) ==
+        readCache(`floors.${readCache("z")}.stairsUp`)
+      ) {
+        addLog("You climb from the depths of the dungeon");
+        goToDungeonLevel(readCache("z") + 1);
+      } else {
+        addLog("There are no stairs to climb");
+      }
+    }
+
     if (userInput === "ArrowUp") {
       player.add(Move, { x: 0, y: -1, z: readCache("z") });
     }
