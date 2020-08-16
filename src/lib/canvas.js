@@ -6,7 +6,7 @@ const ctx = canvas.getContext("2d");
 
 export const grid = {
   width: 100,
-  height: 34,
+  height: 35,
 
   map: {
     width: 79,

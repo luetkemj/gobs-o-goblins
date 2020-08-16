@@ -110,21 +110,21 @@ export class Layer300 extends Component {}
 export class Layer400 extends Component {}
 
 export class Move extends Component {
-  static properties = { x: 0, y: 0, relative: true };
+  static properties = { x: 0, y: 0, z: 0, relative: true };
 }
 
 export class Paralyzed extends Component {}
 
 export class Position extends Component {
-  static properties = { x: 0, y: 0 };
+  static properties = { x: 0, y: 0, z: -1 };
 
   onAttached() {
-    const locId = `${this.entity.position.x},${this.entity.position.y}`;
+    const locId = `${this.entity.position.x},${this.entity.position.y},${this.entity.position.z}`;
     addCacheSet("entitiesAtLocation", locId, this.entity.id);
   }
 
   onDetached() {
-    const locId = `${this.x},${this.y}`;
+    const locId = `${this.x},${this.y},${this.z}`;
     deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
   }
 }
