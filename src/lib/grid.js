@@ -1,5 +1,5 @@
-import { grid } from "../lib/canvas";
-import { sample } from "lodash";
+import { sample } from 'lodash';
+import { grid } from './canvas';
 
 export const CARDINAL = [
   { x: 0, y: -1 }, // N
@@ -19,14 +19,14 @@ export const ALL = [...CARDINAL, ...DIAGONAL];
 
 export const toCell = (cellOrId) => {
   let cell = cellOrId;
-  if (typeof cell === "string") cell = idToCell(cell);
+  if (typeof cell === 'string') cell = idToCell(cell);
 
   return cell;
 };
 
 export const toLocId = (cellOrId) => {
   let locId = cellOrId;
-  if (typeof locId !== "string") locId = cellToId(locId);
+  if (typeof locId !== 'string') locId = cellToId(locId);
 
   return locId;
 };
@@ -106,7 +106,7 @@ export const distance = (cell1, cell2) => {
 };
 
 export const idToCell = (id) => {
-  const coords = id.split(",");
+  const coords = id.split(',');
   return {
     x: parseInt(coords[0], 10),
     y: parseInt(coords[1], 10),
@@ -145,18 +145,18 @@ export const getNeighbors = ({ x, y }, direction = CARDINAL) => {
   return points;
 };
 
-export const getNeighborIds = (cellOrId, direction = "CARDINAL") => {
+export const getNeighborIds = (cellOrId, direction = 'CARDINAL') => {
   let cell = toCell(cellOrId);
 
-  if (direction === "CARDINAL") {
+  if (direction === 'CARDINAL') {
     return getNeighbors(cell, CARDINAL).map(cellToId);
   }
 
-  if (direction === "DIAGONAL") {
+  if (direction === 'DIAGONAL') {
     return getNeighbors(cell, DIAGONAL).map(cellToId);
   }
 
-  if (direction === "ALL") {
+  if (direction === 'ALL') {
     return [
       ...getNeighbors(cell, CARDINAL).map(cellToId),
       ...getNeighbors(cell, DIAGONAL).map(cellToId),
@@ -166,12 +166,12 @@ export const getNeighborIds = (cellOrId, direction = "CARDINAL") => {
 
 export const isNeighbor = (a, b) => {
   let posA = a;
-  if (typeof posA === "string") {
+  if (typeof posA === 'string') {
     posA = idToCell(a);
   }
 
   let posB = b;
-  if (typeof posB === "string") {
+  if (typeof posB === 'string') {
     posB = idToCell(b);
   }
 
@@ -215,10 +215,10 @@ export const getDirection = (a, b) => {
 
   let dir;
 
-  if (ax - bx === 1 && ay - by === 0) dir = "→";
-  if (ax - bx === 0 && ay - by === -1) dir = "↑";
-  if (ax - bx === -1 && ay - by === 0) dir = "←";
-  if (ax - bx === 0 && ay - by === 1) dir = "↓";
+  if (ax - bx === 1 && ay - by === 0) dir = '→';
+  if (ax - bx === 0 && ay - by === -1) dir = '↑';
+  if (ax - bx === -1 && ay - by === 0) dir = '←';
+  if (ax - bx === 0 && ay - by === 1) dir = '↓';
 
   return dir;
 };

@@ -1,10 +1,10 @@
-import { last } from "lodash";
-import ecs from "../state/ecs";
-import { clearCanvas, drawCell } from "../lib/canvas";
-const { Animate, IsInFov } = require("../state/components");
-import { gameState } from "../index";
+import { last } from 'lodash';
+import { gameState } from '../index';
+import { clearCanvas, drawCell } from '../lib/canvas';
+import { Animate } from '../state/components';
+import world from '../state/ecs';
 
-const animatingEntities = ecs.createQuery({
+const animatingEntities = world.createQuery({
   all: [Animate],
 });
 
@@ -20,7 +20,7 @@ const hexToRgb = (hex) => {
 };
 
 export const animation = () => {
-  if (gameState !== "GAME") {
+  if (gameState !== 'GAME') {
     return;
   }
 
@@ -32,12 +32,12 @@ export const animation = () => {
     const time = new Date();
     // set animation startTime
     if (!animate.startTime) {
-      entity.fireEvent("set-start-time", { time });
+      entity.fireEvent('set-start-time', { time });
     }
     const frameTime = time - animate.startTime;
     // end animation when complete
     if (frameTime > animate.duration) {
-      return entity.remove("Animate");
+      return entity.remove(animate);
     }
     const framePercent = frameTime / animate.duration;
     // do the animation
@@ -52,7 +52,7 @@ export const animation = () => {
       appearance: {
         char: animate.char || entity.appearance.char,
         color: `rgba(${r}, ${g}, ${b}, ${1 - framePercent})`,
-        background: "transparent",
+        background: 'transparent',
       },
       position: entity.position,
     });

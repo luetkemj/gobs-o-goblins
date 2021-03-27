@@ -1,16 +1,22 @@
-import ecs from "../state/ecs";
-import { addLog } from "../index";
-import { addCacheSet, deleteCacheSet, readCacheSet } from "../state/cache";
-import { grid } from "../lib/canvas";
-import { Move } from "../state/components";
+import { addLog } from '../index';
+import { grid } from '../lib/canvas';
+import { readCacheSet } from '../state/cache';
+import {
+  Defense,
+  Health,
+  Move,
+  Paralyzed,
+  Position,
+} from '../state/components';
+import world from '../state/ecs';
 
-const movableEntities = ecs.createQuery({
+const movableEntities = world.createQuery({
   all: [Move],
 });
 
 const attack = (entity, target) => {
   const damage = entity.power.current - target.defense.current;
-  target.fireEvent("take-damage", { amount: damage });
+  target.fireEvent('take-damage', { amount: damage });
 
   if (target.health.current <= 0) {
     return addLog(
@@ -19,14 +25,14 @@ const attack = (entity, target) => {
   }
 
   addLog(
-    `${entity.description.name} kicked a ${target.description.name} for ${damage} damage!`
+    `${entity.description.name} kicked ${target.description.name} for ${damage} damage!`
   );
 };
 
 export const movement = () => {
   movableEntities.get().forEach((entity) => {
-    if (entity.has("Paralyzed")) {
-      return entity.remove(Move);
+    if (entity.has(Paralyzed)) {
+      return;
     }
 
     let mx = entity.move.x;
@@ -47,19 +53,19 @@ export const movement = () => {
     const blockers = [];
     // read from cache
     const entitiesAtLoc = readCacheSet(
-      "entitiesAtLocation",
+      'entitiesAtLocation',
       `${mx},${my},${mz}`
     );
 
     for (const eId of entitiesAtLoc) {
-      if (ecs.getEntity(eId).isBlocking) {
+      if (world.getEntity(eId).isBlocking) {
         blockers.push(eId);
       }
     }
     if (blockers.length) {
       blockers.forEach((eId) => {
-        const target = ecs.getEntity(eId);
-        if (target.has("Health") && target.has("Defense")) {
+        const target = world.getEntity(eId);
+        if (target.has(Health) && target.has(Defense)) {
           attack(entity, target);
         } else {
           addLog(
@@ -68,13 +74,13 @@ export const movement = () => {
         }
       });
 
-      entity.remove(Move);
+      entity.remove(entity.move);
       return;
     }
 
-    entity.remove("Position");
-    entity.add("Position", { x: mx, y: my, z: mz });
+    entity.remove(entity.position);
+    entity.add(Position, { x: mx, y: my, z: mz });
 
-    entity.remove(Move);
+    entity.remove(entity.move);
   });
 };

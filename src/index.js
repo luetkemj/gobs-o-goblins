@@ -1,7 +1,7 @@
-import { get, sample, times } from "lodash";
-import "./lib/canvas.js";
-import { grid, pxToCell } from "./lib/canvas";
-import { toCell, toLocId, circle } from "./lib/grid";
+import { get, sample, times } from 'lodash';
+import { grid, pxToCell } from './lib/canvas';
+import { createDungeon } from './lib/dungeon';
+import { circle, toCell, toLocId } from './lib/grid';
 import {
   addCache,
   clearCache,
@@ -9,77 +9,92 @@ import {
   readCache,
   readCacheSet,
   serializeCache,
-} from "./state/cache";
-import { createDungeon } from "./lib/dungeon";
-import { ai } from "./systems/ai";
-import { animation } from "./systems/animation";
-import { effects } from "./systems/effects";
-import { fov } from "./systems/fov";
-import { movement } from "./systems/movement";
-import { render } from "./systems/render";
-import { targeting } from "./systems/targeting";
-import ecs from "./state/ecs";
-import { IsInFov, Move, Position, Ai } from "./state/components";
+} from './state/cache';
+import {
+  ActiveEffects,
+  Ai,
+  Effects,
+  IsInFov,
+  Move,
+  Position,
+  Target,
+  TargetingItem,
+} from './state/components';
+import world from './state/ecs';
+import { ai } from './systems/ai';
+import { animation } from './systems/animation';
+import { effects } from './systems/effects';
+import { fov } from './systems/fov';
+import { movement } from './systems/movement';
+import { render } from './systems/render';
+import { targeting } from './systems/targeting';
 
-export let messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+export let messageLog = ['', "Welcome to Gobs 'O Goblins!", ''];
 export const addLog = (text) => {
   messageLog.unshift(text);
 };
 
 const saveGame = () => {
   const gameSaveData = {
-    ecs: ecs.serialize(),
+    world: world.serialize(),
     cache: serializeCache(),
     playerId: player.id,
     messageLog,
   };
-  localStorage.setItem("gameSaveData", JSON.stringify(gameSaveData));
-  addLog("Game saved");
+  localStorage.setItem('gameSaveData', JSON.stringify(gameSaveData));
+  addLog('Game saved');
 };
 
 const loadGame = () => {
-  const data = JSON.parse(localStorage.getItem("gameSaveData"));
+  const data = JSON.parse(localStorage.getItem('gameSaveData'));
   if (!data) {
-    addLog("Failed to load - no saved games found");
+    addLog('Failed to load - no saved games found');
     return;
   }
 
-  for (let entity of ecs.entities.all) {
+  for (let entity of world.getEntities()) {
     entity.destroy();
   }
   clearCache();
 
-  ecs.deserialize(data.ecs);
+  world.deserialize(data.world);
   deserializeCache(data.cache);
 
-  player = ecs.getEntity(data.playerId);
+  player = world.getEntity(data.playerId);
 
   userInput = null;
   playerTurn = true;
-  gameState = "GAME";
+  gameState = 'GAME';
   selectedInventoryIndex = 0;
 
   messageLog = data.messageLog;
-  addLog("Game loaded");
+  addLog('Game loaded');
 };
 
 const newGame = () => {
-  for (let item of ecs.entities.all) {
+  for (let item of world.getEntities()) {
     item.destroy();
   }
   clearCache();
 
   userInput = null;
   playerTurn = true;
-  gameState = "GAME";
+  gameState = 'GAME';
   selectedInventoryIndex = 0;
 
-  messageLog = ["", "Welcome to Gobs 'O Goblins!", ""];
+  messageLog = ['', "Welcome to Gobs 'O Goblins!", ''];
 
   initGame();
 };
 
-const enemiesInFOV = ecs.createQuery({ all: [IsInFov, Ai] });
+const enemiesInFOV = world.createQuery({ all: [IsInFov, Ai] });
+
+const getOpenTiles = (dungeon) => {
+  const openTiles = Object.values(dungeon.tiles).filter(
+    (x) => x.sprite === 'FLOOR'
+  );
+  return sample(openTiles);
+};
 
 const createDungeonLevel = ({
   createStairsUp = true,
@@ -88,105 +103,94 @@ const createDungeonLevel = ({
   const dungeon = createDungeon({
     x: grid.map.x,
     y: grid.map.y,
-    z: readCache("z"),
+    z: readCache('z'),
     width: grid.map.width,
     height: grid.map.height,
   });
 
   const openTiles = Object.values(dungeon.tiles).filter(
-    (x) => x.sprite === "FLOOR"
+    (x) => x.sprite === 'FLOOR'
   );
 
   times(5, () => {
-    const tile = sample(openTiles);
-    ecs.createPrefab("Goblin").add(Position, tile);
+    world.createPrefab('Goblin').add(Position, getOpenTiles(dungeon));
   });
 
   times(10, () => {
-    const tile = sample(openTiles);
-    ecs.createPrefab("HealthPotion").add(Position, tile);
+    world.createPrefab('HealthPotion').add(Position, getOpenTiles(dungeon));
   });
 
   times(10, () => {
-    const tile = sample(openTiles);
-    ecs.createPrefab("ScrollLightning").add(Position, tile);
+    world.createPrefab('ScrollLightning').add(Position, getOpenTiles(dungeon));
   });
 
   times(10, () => {
-    const tile = sample(openTiles);
-    ecs.createPrefab("ScrollParalyze").add(Position, tile);
+    world.createPrefab('ScrollParalyze').add(Position, getOpenTiles(dungeon));
   });
 
   times(10, () => {
-    const tile = sample(openTiles);
-    ecs.createPrefab("ScrollFireball").add(Position, tile);
+    world.createPrefab('ScrollFireball').add(Position, getOpenTiles(dungeon));
   });
 
   let stairsUp, stairsDown;
 
   if (createStairsUp) {
     times(1, () => {
-      const tile = sample(openTiles);
-      stairsUp = ecs.createPrefab("StairsUp");
-      stairsUp.add(Position, tile);
+      stairsUp = world.createPrefab('StairsUp');
+      stairsUp.add(Position, getOpenTiles(dungeon));
     });
   }
 
   if (createStairsDown) {
     times(1, () => {
-      const tile = sample(openTiles);
-      stairsDown = ecs.createPrefab("StairsDown");
-      stairsDown.add(Position, tile);
+      stairsDown = world.createPrefab('StairsDown');
+      stairsDown.add(Position, getOpenTiles(dungeon));
     });
   }
 
   return { dungeon, stairsUp, stairsDown };
 };
 
-const goToDungeonLevel = (level) => {
-  const goingUp = readCache("z") < level;
-  const floor = readCache("floors")[level];
+export const goToDungeonLevel = (level) => {
+  const goingUp = readCache('z') < level;
+  const floor = readCache('floors')[level];
 
-  if (floor) {
-    addCache("z", level);
-    player.remove(Position);
-    if (goingUp) {
-      player.add(Position, toCell(floor.stairsDown));
-    } else {
-      player.add(Position, toCell(floor.stairsUp));
-    }
-  } else {
-    addCache("z", level);
-    const { stairsUp, stairsDown } = createDungeonLevel();
+  addCache('z', level);
+  player.remove(player.position);
+
+  let newPosition = goingUp ? floor?.stairsDown : floor?.stairsUp;
+
+  if (!floor) {
+    const { stairsDown, stairsUp } = createDungeonLevel();
 
     addCache(`floors.${level}`, {
-      stairsUp: toLocId(stairsUp.position),
       stairsDown: toLocId(stairsDown.position),
+      stairsUp: toLocId(stairsUp.position),
     });
 
-    player.remove(Position);
-
-    if (goingUp) {
-      player.add(Position, toCell(stairsDown.position));
-    } else {
-      player.add(Position, toCell(stairsUp.position));
-    }
+    newPosition = goingUp ? stairsDown.position : stairsUp.position;
   }
+
+  player.add(Position, toCell(newPosition));
 
   fov(player);
   render(player);
 };
 
 const initGame = () => {
-  const { stairsDown } = createDungeonLevel({ createStairsUp: false });
+  const { dungeon, stairsDown, stairsUp } = createDungeonLevel({
+    createStairsUp: false,
+  });
 
-  player = ecs.createPrefab("Player");
+  player = world.createPrefab('Player');
 
   addCache(`floors.${-1}`, {
     stairsDown: toLocId(stairsDown.position),
   });
 
-  player.add(Position, stairsDown.position);
+  const playerSpawn = stairsUp ? stairsUp.position : getOpenTiles(dungeon);
+
+  player.add(Position, playerSpawn);
 
   fov(player);
   render(player);
@@ -195,162 +199,160 @@ const initGame = () => {
 let player = {};
 let userInput = null;
 let playerTurn = true;
-export let gameState = "GAME";
+export let gameState = 'GAME';
 export let selectedInventoryIndex = 0;
 
 initGame();
 
-document.addEventListener("keydown", (ev) => {
-  if (ev.key !== "Shift") {
+document.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Shift') {
     userInput = ev.key;
   }
 });
 
 const processUserInput = () => {
-  if (userInput === "l") {
+  if (userInput === 'l') {
     loadGame();
   }
 
-  if (userInput === "n") {
+  if (userInput === 'n') {
     newGame();
   }
 
-  if (userInput === "s") {
+  if (userInput === 's') {
     saveGame();
   }
 
-  if (gameState === "GAME") {
-    if (userInput === ">") {
+  if (gameState === 'GAME') {
+    if (userInput === '>') {
       if (
-        toLocId(player.position) ==
-        readCache(`floors.${readCache("z")}.stairsDown`)
+        toLocId(player.position) !==
+        readCache(`floors.${readCache('z')}.stairsDown`)
       ) {
-        addLog("You descend deeper into the dungeon");
-        goToDungeonLevel(readCache("z") - 1);
-      } else {
-        addLog("There are no stairs to descend");
+        addLog('There are no stairs to descend');
       }
+      addLog('You descend deeper into the dungeon');
+      goToDungeonLevel(readCache('z') - 1);
     }
 
-    if (userInput === "<") {
+    if (userInput === '<') {
       if (
-        toLocId(player.position) ==
-        readCache(`floors.${readCache("z")}.stairsUp`)
+        toLocId(player.position) !==
+        readCache(`floors.${readCache('z')}.stairsUp`)
       ) {
-        addLog("You climb from the depths of the dungeon");
-        goToDungeonLevel(readCache("z") + 1);
-      } else {
-        addLog("There are no stairs to climb");
+        addLog('There are no stairs to climb');
       }
+      addLog('You climb from the depths of the dungeon');
+      goToDungeonLevel(readCache('z') + 1);
     }
 
-    if (userInput === "ArrowUp") {
-      player.add(Move, { x: 0, y: -1, z: readCache("z") });
+    if (userInput === 'ArrowUp') {
+      player.add(Move, { x: 0, y: -1, z: readCache('z') });
     }
-    if (userInput === "ArrowRight") {
-      player.add(Move, { x: 1, y: 0, z: readCache("z") });
+    if (userInput === 'ArrowRight') {
+      player.add(Move, { x: 1, y: 0, z: readCache('z') });
     }
-    if (userInput === "ArrowDown") {
-      player.add(Move, { x: 0, y: 1, z: readCache("z") });
+    if (userInput === 'ArrowDown') {
+      player.add(Move, { x: 0, y: 1, z: readCache('z') });
     }
-    if (userInput === "ArrowLeft") {
-      player.add(Move, { x: -1, y: 0, z: readCache("z") });
+    if (userInput === 'ArrowLeft') {
+      player.add(Move, { x: -1, y: 0, z: readCache('z') });
     }
-    if (userInput === "g") {
+    if (userInput === 'g') {
       let pickupFound = false;
-      readCacheSet("entitiesAtLocation", toLocId(player.position)).forEach(
+      readCacheSet('entitiesAtLocation', toLocId(player.position)).forEach(
         (eId) => {
-          const entity = ecs.getEntity(eId);
+          const entity = world.getEntity(eId);
           if (entity.isPickup) {
             pickupFound = true;
-            player.fireEvent("pick-up", entity);
+            player.fireEvent('pick-up', entity);
             addLog(`You pickup a ${entity.description.name}`);
           }
         }
       );
       if (!pickupFound) {
-        addLog("There is nothing to pick up here");
+        addLog('There is nothing to pick up here');
       }
     }
-    if (userInput === "i") {
-      gameState = "INVENTORY";
+    if (userInput === 'i') {
+      gameState = 'INVENTORY';
     }
 
-    if (userInput === "z") {
-      gameState = "TARGETING";
-    }
-
-    userInput = null;
-  }
-
-  if (gameState === "TARGETING") {
-    if (userInput === "z" || userInput === "Escape") {
-      gameState = "GAME";
+    if (userInput === 'z') {
+      gameState = 'TARGETING';
     }
 
     userInput = null;
   }
 
-  if (gameState === "INVENTORY") {
-    if (userInput === "i" || userInput === "Escape") {
-      gameState = "GAME";
+  if (gameState === 'TARGETING') {
+    if (userInput === 'z' || userInput === 'Escape') {
+      player.remove(player.targetingItem);
+      gameState = 'GAME';
     }
 
-    if (userInput === "ArrowUp") {
+    userInput = null;
+  }
+
+  if (gameState === 'INVENTORY') {
+    if (userInput === 'i' || userInput === 'Escape') {
+      gameState = 'GAME';
+    }
+
+    if (userInput === 'ArrowUp') {
       selectedInventoryIndex -= 1;
       if (selectedInventoryIndex < 0) selectedInventoryIndex = 0;
     }
 
-    if (userInput === "ArrowDown") {
+    if (userInput === 'ArrowDown') {
       selectedInventoryIndex += 1;
-      if (selectedInventoryIndex > player.inventory.list.length - 1)
-        selectedInventoryIndex = player.inventory.list.length - 1;
+      if (selectedInventoryIndex > player.inventory.inventoryItems.length - 1)
+        selectedInventoryIndex = player.inventory.inventoryItems.length - 1;
     }
 
-    if (userInput === "d") {
-      if (player.inventory.list.length) {
-        addLog(`You drop a ${player.inventory.list[0].description.name}`);
-        player.fireEvent("drop", player.inventory.list[0]);
+    if (userInput === 'd') {
+      if (player.inventory.inventoryItems.length) {
+        const entity = player.inventory.inventoryItems[selectedInventoryIndex];
+        addLog(`You drop a ${entity.description.name}`);
+        player.fireEvent('drop', entity);
       }
     }
 
-    if (userInput === "c") {
-      const entity = player.inventory.list[selectedInventoryIndex];
+    if (userInput === 'c') {
+      const entity = player.inventory.inventoryItems[selectedInventoryIndex];
 
       if (entity) {
         if (entity.requiresTarget) {
-          if (entity.requiresTarget.acquired === "RANDOM") {
+          if (entity.requiresTarget.acquired === 'RANDOM') {
             // get a target that is NOT the player
             const target = sample([...enemiesInFOV.get()]);
 
             if (target) {
-              player.add("TargetingItem", { item: entity });
-              player.add("Target", { locId: toLocId(target.position) });
+              player.add(TargetingItem, { itemId: entity.id });
+              player.add(Target, { locId: toLocId(target.position) });
+              targeting(player);
             } else {
               addLog(`The scroll disintegrates uselessly in your hand`);
-              entity.destroy();
+              player.fireEvent('consume', entity);
             }
-          }
-
-          if (entity.requiresTarget.acquired === "MANUAL") {
-            player.add("TargetingItem", { item: entity });
-            gameState = "TARGETING";
+          } else if (entity.requiresTarget.acquired === 'MANUAL') {
+            player.add(TargetingItem, { itemId: entity.id });
+            gameState = 'TARGETING';
             return;
           }
-        } else if (entity.has("Effects")) {
+        } else if (entity.has(Effects)) {
           // clone all effects and add to self
-          entity
-            .get("Effects")
-            .forEach((x) => player.add("ActiveEffects", { ...x.serialize() }));
+          entity.effects.forEach((x) =>
+            player.add(ActiveEffects, { ...x.serialize() })
+          );
 
           addLog(`You consume a ${entity.description.name}`);
-          entity.destroy();
+          player.fireEvent('consume', entity);
         }
 
-        if (selectedInventoryIndex > player.inventory.list.length - 1)
-          selectedInventoryIndex = player.inventory.list.length - 1;
+        selectedInventoryIndex = 0;
 
-        gameState = "GAME";
+        gameState = 'GAME';
       }
     }
 
@@ -362,39 +364,39 @@ const update = () => {
   animation();
 
   if (player.isDead) {
-    if (gameState !== "GAMEOVER") {
-      addLog("You are dead.");
+    if (gameState !== 'GAMEOVER') {
+      addLog('You are dead.');
       render(player);
     }
-    gameState = "GAMEOVER";
+    gameState = 'GAMEOVER';
     processUserInput();
     return;
   }
 
-  if (playerTurn && userInput && gameState === "TARGETING") {
+  if (playerTurn && userInput && gameState === 'TARGETING') {
     processUserInput();
-    render(player);
-    playerTurn = true;
-  }
-
-  if (playerTurn && userInput && gameState === "INVENTORY") {
-    processUserInput();
-    targeting();
     effects();
     render(player);
+
     playerTurn = true;
   }
 
-  if (playerTurn && userInput && gameState === "GAME") {
+  if (playerTurn && userInput && gameState === 'INVENTORY') {
+    processUserInput();
+    effects();
+    gameState === 'TARGETING';
+    render(player);
+    playerTurn = true;
+  }
+
+  if (playerTurn && userInput && gameState === 'GAME') {
     processUserInput();
     effects();
     movement();
     fov(player);
     render(player);
 
-    if (gameState === "GAME") {
-      playerTurn = false;
-    }
+    playerTurn = false;
   }
 
   if (!playerTurn) {
@@ -415,40 +417,40 @@ const gameLoop = () => {
 
 requestAnimationFrame(gameLoop);
 
-const canvas = document.querySelector("#canvas");
+const canvas = document.querySelector('#canvas');
 
 canvas.onclick = (e) => {
   const [x, y] = pxToCell(e);
-  const locId = toLocId({ x, y, z: readCache("z") });
+  const locId = toLocId({ x, y, z: readCache('z') });
 
-  readCacheSet("entitiesAtLocation", locId).forEach((eId) => {
-    const entity = ecs.getEntity(eId);
+  readCacheSet('entitiesAtLocation', locId).forEach((eId) => {
+    const entity = world.getEntity(eId);
 
     // Only do this during development
-    if (process.env.NODE_ENV === "development") {
+    if (process.env.NODE_ENV === 'development') {
       console.log(
-        `${get(entity, "appearance.char", "?")} ${get(
+        `${get(entity, 'appearance.char', '?')} ${get(
           entity,
-          "description.name",
-          "?"
+          'description.name',
+          '?'
         )}`,
         entity.serialize()
       );
     }
 
-    if (gameState === "TARGETING") {
-      const entity = player.inventory.list[selectedInventoryIndex];
+    if (gameState === 'TARGETING') {
+      const entity = player.inventory.inventoryItems[selectedInventoryIndex];
       if (entity.requiresTarget.aoeRange) {
         const targets = circle({ x, y }, entity.requiresTarget.aoeRange).map(
-          (locId) => `${locId},${readCache("z")}`
+          (locId) => `${locId},${readCache('z')}`
         );
-        targets.forEach((locId) => player.add("Target", { locId }));
+        targets.forEach((locId) => player.add(Target, { locId }));
       } else {
-        player.add("Target", { locId });
+        player.add(Target, { locId });
       }
 
-      gameState = "GAME";
-      targeting();
+      gameState = 'GAME';
+      targeting(player);
       effects();
       render(player);
     }
