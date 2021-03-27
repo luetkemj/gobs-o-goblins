@@ -1,7 +1,10 @@
-import ecs from "../state/ecs";
-const { ActiveEffects } = require("../state/components");
+import { ActiveEffects, Animate, Paralyzed } from '../state/components';
+import world from '../state/ecs';
+import { toCamelCase } from '../utils/misc';
 
-const activeEffectsEntities = ecs.createQuery({
+const classes = { Paralyzed };
+
+const activeEffectsEntities = world.createQuery({
   all: [ActiveEffects],
 });
 
@@ -20,24 +23,24 @@ export const effects = () => {
         c.events.forEach((event) => entity.fireEvent(event.name, event.args));
       }
 
-      // handle addComponents
+      //handle addComponents
       if (c.addComponents.length) {
         c.addComponents.forEach((component) => {
-          if (!entity.has(component.name)) {
-            entity.add(component.name, component.properties);
+          if (!entity.has(classes[component.name])) {
+            entity.add(classes[component.name], component.properties);
           }
         });
       }
 
-      entity.add("Animate", { ...c.animate });
+      entity.add(Animate, { ...c.animate });
 
       if (!c.duration) {
-        c.remove();
+        c.destroy();
 
         if (c.addComponents.length) {
           c.addComponents.forEach((component) => {
-            if (entity.has(component.name)) {
-              entity.remove(component.name, component.properties);
+            if (entity.has(classes[component.name])) {
+              entity.remove(entity[toCamelCase(component.name)]);
             }
           });
         }

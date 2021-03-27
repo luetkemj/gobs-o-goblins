@@ -1,11 +1,15 @@
-import { remove } from "lodash";
-import { Component } from "geotic";
-import { addCacheSet, deleteCacheSet } from "./cache";
+import { Component } from 'geotic';
+import {
+  getEntityArrayRef,
+  getEntityRef,
+  setEntityRef,
+} from '../utils/ecs-refs';
+import { addCacheSet, deleteCacheSet } from './cache';
 
 const effectProps = {
-  component: "",
-  delta: "",
-  animate: { char: "", color: "" },
+  component: '',
+  delta: '',
+  animate: { char: '', color: '' },
   events: [], // { name: "", args: {} },
   addComponents: [], // { name: '', properties: {} }
   duration: 0, // in turns
@@ -23,8 +27,8 @@ export class Animate extends Component {
   static properties = {
     startTime: null,
     duration: 250,
-    char: "",
-    color: "",
+    char: '',
+    color: '',
   };
 
   onSetStartTime(evt) {
@@ -34,9 +38,9 @@ export class Animate extends Component {
 
 export class Appearance extends Component {
   static properties = {
-    color: "#ff0077",
-    char: "?",
-    background: "#000",
+    color: '#ff0077',
+    char: '?',
+    background: '#000',
   };
 }
 
@@ -45,7 +49,7 @@ export class Defense extends Component {
 }
 
 export class Description extends Component {
-  static properties = { name: "No Name" };
+  static properties = { name: 'No Name' };
 }
 
 export class Effects extends Component {
@@ -60,34 +64,59 @@ export class Health extends Component {
     this.current -= evt.data.amount;
 
     if (this.current <= 0) {
-      this.entity.appearance.char = "%";
-      this.entity.remove("Ai");
-      this.entity.remove("IsBlocking");
-      this.entity.add("IsDead");
-      this.entity.remove("Layer400");
-      this.entity.add("Layer300");
-    }
+      if (this.entity.has(Ai)) {
+        this.entity.remove(this.entity.ai);
+      }
+      if (this.entity.has(IsBlocking)) {
+        this.entity.remove(this.entity.isBlocking);
+      }
+      if (this.entity.has(Layer400)) {
+        this.entity.remove(this.entity.layer400);
+      }
 
+      this.entity.add(IsDead);
+      this.entity.add(Layer300);
+      this.entity.appearance.char = '%';
+    }
     evt.handle();
   }
 }
 
 export class Inventory extends Component {
   static properties = {
-    list: "<EntityArray>",
+    inventoryItemIds: [],
   };
 
+  get inventoryItems() {
+    return getEntityArrayRef(this, 'inventoryItemIds');
+  }
+
   onPickUp(evt) {
-    this.list.push(evt.data);
+    this.inventoryItemIds.push(evt.data.id);
 
     if (evt.data.position) {
-      evt.data.remove("Position");
+      evt.data.remove(evt.data.position);
+      evt.data.remove(evt.data.isPickup);
     }
   }
 
   onDrop(evt) {
-    remove(this.list, (x) => x.id === evt.data.id);
-    evt.data.add("Position", this.entity.position);
+    this.inventoryItemIds = this.inventoryItemIds.filter(
+      (itemId) => itemId !== evt.data.id
+    );
+    evt.data.add(Position, {
+      x: this.entity.position.x,
+      y: this.entity.position.y,
+    });
+    evt.data.add(IsPickup);
+  }
+
+  onConsume(evt) {
+    this.inventoryItemIds = this.inventoryItemIds.filter(
+      (itemId) => itemId !== evt.data.id
+    );
+
+    evt.data.destroy();
   }
 }
 
@@ -117,15 +146,15 @@ export class Paralyzed extends Component {}
 
 export class Position extends Component {
   static properties = { x: 0, y: 0, z: -1 };
-
   onAttached() {
     const locId = `${this.entity.position.x},${this.entity.position.y},${this.entity.position.z}`;
-    addCacheSet("entitiesAtLocation", locId, this.entity.id);
+
+    addCacheSet('entitiesAtLocation', locId, this.entity.id);
   }
 
-  onDetached() {
+  onDestroyed() {
     const locId = `${this.x},${this.y},${this.z}`;
-    deleteCacheSet("entitiesAtLocation", locId, this.entity.id);
+    deleteCacheSet('entitiesAtLocation', locId, this.entity.id);
   }
 }
 
@@ -135,16 +164,24 @@ export class Power extends Component {
 
 export class RequiresTarget extends Component {
   static properties = {
-    acquired: "RANDOM",
+    acquired: 'RANDOM',
     aoeRange: 0,
   };
 }
 
 export class Target extends Component {
   static allowMultiple = true;
-  static properties = { locId: "" };
+  static properties = { locId: '' };
 }
 
 export class TargetingItem extends Component {
-  static properties = { item: "<Entity>" };
+  static properties = { itemId: 0 };
+
+  get item() {
+    return getEntityRef(this, 'itemId');
+  }
+
+  set item(value) {
+    setEntityRef(this, 'itemId', value);
+  }
 }

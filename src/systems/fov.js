@@ -1,15 +1,14 @@
-import { readCacheSet } from "../state/cache";
-import ecs from "../state/ecs";
-import { grid } from "../lib/canvas";
-import createFOV from "../lib/fov";
-import { IsInFov, IsOpaque, IsRevealed } from "../state/components";
-import { readCache } from "../state/cache";
+import { grid } from '../lib/canvas';
+import createFOV from '../lib/fov';
+import { readCache, readCacheSet } from '../state/cache';
+import { IsInFov, IsOpaque, IsRevealed } from '../state/components';
+import world from '../state/ecs';
 
-const inFovEntities = ecs.createQuery({
+const inFovEntities = world.createQuery({
   all: [IsInFov],
 });
 
-const opaqueEntities = ecs.createQuery({
+const opaqueEntities = world.createQuery({
   all: [IsOpaque],
 });
 
@@ -25,22 +24,22 @@ export const fov = (origin) => {
     height,
     originX,
     originY,
-    readCache("z"),
+    readCache('z'),
     10
   );
 
   // clear out stale fov
-  inFovEntities.get().forEach((x) => x.remove(IsInFov));
+  inFovEntities.get().forEach((x) => x.remove(x.isInFov));
 
   FOV.fov.forEach((locId) => {
-    const entitiesAtLoc = readCacheSet("entitiesAtLocation", locId);
+    const entitiesAtLoc = readCacheSet('entitiesAtLocation', locId);
 
     if (entitiesAtLoc) {
       entitiesAtLoc.forEach((eId) => {
-        const entity = ecs.getEntity(eId);
+        const entity = world.getEntity(eId);
         entity.add(IsInFov);
 
-        if (!entity.has("IsRevealed")) {
+        if (!entity.has(IsRevealed)) {
           entity.add(IsRevealed);
         }
       });

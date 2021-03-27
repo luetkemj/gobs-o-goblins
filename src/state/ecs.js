@@ -1,11 +1,11 @@
-import { Engine } from "geotic";
+import { Engine } from 'geotic';
 import {
   ActiveEffects,
   Ai,
   Animate,
   Appearance,
-  Description,
   Defense,
+  Description,
   Effects,
   Health,
   Inventory,
@@ -25,23 +25,22 @@ import {
   RequiresTarget,
   Target,
   TargetingItem,
-} from "./components";
-
+} from './components';
 import {
   Being,
-  Item,
-  Tile,
+  Floor,
+  Goblin,
   HealthPotion,
+  Item,
+  Player,
   ScrollFireball,
   ScrollLightning,
   ScrollParalyze,
-  Goblin,
-  Player,
-  Wall,
-  Floor,
-  StairsUp,
   StairsDown,
-} from "./prefabs";
+  StairsUp,
+  Tile,
+  Wall,
+} from './prefabs';
 
 const ecs = new Engine();
 
@@ -77,15 +76,16 @@ ecs.registerPrefab(Tile);
 ecs.registerPrefab(Being);
 ecs.registerPrefab(Item);
 
-ecs.registerPrefab(HealthPotion);
-ecs.registerPrefab(Wall);
 ecs.registerPrefab(Floor);
+ecs.registerPrefab(HealthPotion);
 ecs.registerPrefab(Goblin);
 ecs.registerPrefab(Player);
 ecs.registerPrefab(ScrollFireball);
 ecs.registerPrefab(ScrollLightning);
 ecs.registerPrefab(ScrollParalyze);
-ecs.registerPrefab(StairsUp);
 ecs.registerPrefab(StairsDown);
+ecs.registerPrefab(StairsUp);
+ecs.registerPrefab(Wall);
 
-export default ecs;
+const world = ecs.createWorld();
+export default world;
