@@ -1,6 +1,6 @@
-import { get, sample, times } from 'lodash';
-import { grid, pxToCell } from './lib/canvas';
-import { createDungeon } from './lib/dungeon';
+import { get, sample } from 'lodash';
+import { pxToCell } from './lib/canvas';
+import { createDungeonLevel, getOpenTiles } from './lib/dungeon';
 import { circle, toCell, toLocId } from './lib/grid';
 import {
   addCache,
@@ -88,68 +88,6 @@ const newGame = () => {
 };
 
 const enemiesInFOV = world.createQuery({ all: [IsInFov, Ai] });
-
-const getOpenTiles = (dungeon) => {
-  const openTiles = Object.values(dungeon.tiles).filter(
-    (x) => x.sprite === 'FLOOR'
-  );
-  return sample(openTiles);
-};
-
-const createDungeonLevel = ({
-  createStairsUp = true,
-  createStairsDown = true,
-} = {}) => {
-  const dungeon = createDungeon({
-    x: grid.map.x,
-    y: grid.map.y,
-    z: readCache('z'),
-    width: grid.map.width,
-    height: grid.map.height,
-  });
-
-  const openTiles = Object.values(dungeon.tiles).filter(
-    (x) => x.sprite === 'FLOOR'
-  );
-
-  times(5, () => {
-    world.createPrefab('Goblin').add(Position, getOpenTiles(dungeon));
-  });
-
-  times(10, () => {
-    world.createPrefab('HealthPotion').add(Position, getOpenTiles(dungeon));
-  });
-
-  times(10, () => {
-    world.createPrefab('ScrollLightning').add(Position, getOpenTiles(dungeon));
-  });
-
-  times(10, () => {
-    world.createPrefab('ScrollParalyze').add(Position, getOpenTiles(dungeon));
-  });
-
-  times(10, () => {
-    world.createPrefab('ScrollFireball').add(Position, getOpenTiles(dungeon));
-  });
-
-  let stairsUp, stairsDown;
-
-  if (createStairsUp) {
-    times(1, () => {
-      stairsUp = world.createPrefab('StairsUp');
-      stairsUp.add(Position, getOpenTiles(dungeon));
-    });
-  }
-
-  if (createStairsDown) {
-    times(1, () => {
-      stairsDown = world.createPrefab('StairsDown');
-      stairsDown.add(Position, getOpenTiles(dungeon));
-    });
-  }
-
-  return { dungeon, stairsUp, stairsDown };
-};
 
 export const goToDungeonLevel = (level) => {
   const goingUp = readCache('z') < level;

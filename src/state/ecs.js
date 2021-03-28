@@ -30,6 +30,7 @@ import {
   Being,
   Floor,
   Goblin,
+  GoblinWarrior,
   HealthPotion,
   Item,
   Player,
@@ -76,16 +77,24 @@ ecs.registerPrefab(Tile);
 ecs.registerPrefab(Being);
 ecs.registerPrefab(Item);
 
+// tiles
 ecs.registerPrefab(Floor);
-ecs.registerPrefab(HealthPotion);
-ecs.registerPrefab(Goblin);
-ecs.registerPrefab(Player);
-ecs.registerPrefab(ScrollFireball);
-ecs.registerPrefab(ScrollLightning);
-ecs.registerPrefab(ScrollParalyze);
 ecs.registerPrefab(StairsDown);
 ecs.registerPrefab(StairsUp);
 ecs.registerPrefab(Wall);
+
+// items
+ecs.registerPrefab(HealthPotion);
+ecs.registerPrefab(ScrollFireball);
+ecs.registerPrefab(ScrollLightning);
+ecs.registerPrefab(ScrollParalyze);
+
+// enemies
+ecs.registerPrefab(Goblin);
+ecs.registerPrefab(GoblinWarrior);
+
+// player
+ecs.registerPrefab(Player);
 
 const world = ecs.createWorld();
 export default world;

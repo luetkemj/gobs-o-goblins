@@ -1,7 +1,21 @@
-import { random, times } from 'lodash';
+import { random, sample, times } from 'lodash';
+import { readCache } from '../state/cache';
 import { Position } from '../state/components';
 import world from '../state/ecs';
+import {
+  getEntityChancesForLevel,
+  getHighestMatch,
+  getWeightedValue,
+} from '../utils/misc';
+import { grid } from './canvas';
+import { DUNGEON_LAYOUT } from './dungeon_layout';
 import { rectangle, rectsIntersect } from './grid';
+import {
+  ITEM_WEIGHT,
+  MAX_ITEMS_BY_FLOOR,
+  MAX_MONSTERS_BY_FLOOR,
+  MONSTER_WEIGHT,
+} from './level_entities';
 
 function digHorizontalPassage(x1, x2, y, z) {
   const tiles = {};
@@ -106,4 +120,78 @@ export const createDungeon = ({
   });
 
   return dungeon;
+};
+
+export const getOpenTiles = (dungeon) => {
+  const openTiles = Object.values(dungeon.tiles).filter(
+    (x) => x.sprite === 'FLOOR'
+  );
+  return sample(openTiles);
+};
+
+export const createDungeonLevel = ({
+  createStairsUp = true,
+  createStairsDown = true,
+} = {}) => {
+  const currentLevel = Math.abs(readCache('z'));
+  const dimensions =
+    DUNGEON_LAYOUT[getHighestMatch(Object.keys(DUNGEON_LAYOUT), currentLevel)];
+
+  const dungeon = createDungeon({
+    x: grid.map.x,
+    y: grid.map.y,
+    z: readCache('z'),
+    width: dimensions.width,
+    height: dimensions.height,
+    maxRoomCount: dimensions.maxRoomCount,
+  });
+
+  generateEntities(currentLevel, MAX_ITEMS_BY_FLOOR, ITEM_WEIGHT, dungeon);
+  generateEntities(
+    currentLevel,
+    MAX_MONSTERS_BY_FLOOR,
+    MONSTER_WEIGHT,
+    dungeon
+  );
+
+  let stairsUp, stairsDown;
+
+  if (createStairsUp) {
+    times(1, () => {
+      stairsUp = world.createPrefab('StairsUp');
+      stairsUp.add(Position, getOpenTiles(dungeon));
+    });
+  }
+
+  if (createStairsDown) {
+    times(1, () => {
+      stairsDown = world.createPrefab('StairsDown');
+      stairsDown.add(Position, getOpenTiles(dungeon));
+    });
+  }
+
+  return { dungeon, stairsUp, stairsDown };
+};
+
+const generateEntities = (level, maxEntitiesByFloor, entityWeight, dungeon) => {
+  const amount =
+    maxEntitiesByFloor[getHighestMatch(Object.keys(maxEntitiesByFloor), level)];
+  getEntitiesAtRandom(entityWeight, amount, level, dungeon);
+};
+
+const getEntitiesAtRandom = (
+  weightedChances,
+  amountOfEntities,
+  currentLevel,
+  dungeon
+) => {
+  const entityWeightedChances = getEntityChancesForLevel(
+    weightedChances,
+    currentLevel
+  );
+
+  times(Math.floor(Math.random() * amountOfEntities + 1), () => {
+    let prefab = getWeightedValue(entityWeightedChances);
+    world.createPrefab(prefab).add(Position, getOpenTiles(dungeon));
+  });
 };

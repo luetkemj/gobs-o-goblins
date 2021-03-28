@@ -1,4 +1,4 @@
-import { get, set } from "lodash";
+import { get, set } from 'lodash';
 
 export const cache = {
   entitiesAtLocation: {},
